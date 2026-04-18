@@ -1,0 +1,49 @@
+# Publish inlinr-vscode to VS Code Marketplace + OpenVSX on every `v*` tag.
+#
+# Required repo secrets (Settings → Secrets and variables → Actions):
+#   VSCE_PAT  — Azure DevOps PAT with Marketplace > Manage scope
+#   OVSX_PAT  — OpenVSX personal token with `publish` scope
+
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write # needed to create the GitHub Release + upload .vsix
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install deps
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        run: bun run build
+
+      - name: Package .vsix
+        run: bunx vsce package --no-dependencies -o inlinr-vscode-${{ github.ref_name }}.vsix
+
+      - name: Publish to VS Code Marketplace
+        run: bunx vsce publish --no-dependencies --packagePath inlinr-vscode-${{ github.ref_name }}.vsix
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Publish to OpenVSX
+        run: bunx ovsx publish inlinr-vscode-${{ github.ref_name }}.vsix -p $OVSX_PAT
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+
+      - name: Upload .vsix to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: inlinr-vscode-${{ github.ref_name }}.vsix
+          generate_release_notes: true

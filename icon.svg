@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Background: deep charcoal, matches dashboard bg -->
+  <rect width="128" height="128" rx="28" fill="#0a0a0a"/>
+
+  <!-- Outer pulsing ring (static snapshot — no animation for Marketplace PNG) -->
+  <circle cx="64" cy="64" r="40" fill="none" stroke="#6ee7b7" stroke-width="2" opacity="0.35"/>
+  <circle cx="64" cy="64" r="32" fill="none" stroke="#6ee7b7" stroke-width="2" opacity="0.55"/>
+
+  <!-- Core dot: accent green (matches sidebar's animate-ping) -->
+  <circle cx="64" cy="64" r="18" fill="#6ee7b7"/>
+
+  <!-- Inner highlight for a slight dimensional lift -->
+  <circle cx="58" cy="58" r="5" fill="#a7f3d0" opacity="0.85"/>
+</svg>

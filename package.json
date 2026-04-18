@@ -1,0 +1,90 @@
+{
+  "name": "inlinr-vscode",
+  "displayName": "Inlinr",
+  "description": "Time tracking for developers with AI-tool attribution. First-party VS Code extension for inlinr.com.",
+  "version": "0.1.0",
+  "publisher": "inlinr",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/inlinrhq/inlinr-vscode.git"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./dist/extension.js",
+  "icon": "icon.png",
+  "galleryBanner": { "color": "#0a0a0a", "theme": "dark" },
+  "keywords": [
+    "time tracking",
+    "productivity",
+    "wakatime",
+    "ai",
+    "copilot",
+    "cursor",
+    "claude"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "inlinr.signIn",
+        "title": "Inlinr: Sign in"
+      },
+      {
+        "command": "inlinr.signOut",
+        "title": "Inlinr: Sign out"
+      },
+      {
+        "command": "inlinr.dashboard",
+        "title": "Inlinr: Open dashboard"
+      },
+      {
+        "command": "inlinr.doctor",
+        "title": "Inlinr: Doctor"
+      },
+      {
+        "command": "inlinr.toggleStatusBar",
+        "title": "Inlinr: Toggle status bar"
+      }
+    ],
+    "configuration": {
+      "title": "Inlinr",
+      "properties": {
+        "inlinr.apiUrl": {
+          "type": "string",
+          "default": "https://inlinr.com",
+          "description": "Inlinr server base URL."
+        },
+        "inlinr.statusBarEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show today's coding time in the status bar."
+        },
+        "inlinr.debug": {
+          "type": "boolean",
+          "default": false,
+          "description": "Pass --log-file to the CLI and print its output to the Inlinr output channel."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "esbuild src/extension.ts --bundle --platform=node --target=node18 --external:vscode --outfile=dist/extension.js",
+    "build:icon": "bun run scripts/build-icon.mjs",
+    "watch": "bun run build -- --watch",
+    "package": "vsce package",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.2.0",
+    "esbuild": "^0.24.0",
+    "ovsx": "^0.10.11",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

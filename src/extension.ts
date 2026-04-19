@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { Tracker } from "./tracker";
-import { ensureCli, cliPath } from "./dependencies";
+import { ensureCli, cliPath, scheduleAutoUpgrade } from "./dependencies";
 import { runActivate, runDoctor, openDashboard, revokeDevice } from "./commands";
 
 let tracker: Tracker | undefined;
@@ -21,9 +21,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	tracker = new Tracker(cliPath(context), output);
 	context.subscriptions.push(tracker);
+	context.subscriptions.push(scheduleAutoUpgrade(context, output));
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand("inlinr.signIn", () => runActivate(cliPath(context), output)),
+		vscode.commands.registerCommand("inlinr.signIn", () =>
+			runActivate(cliPath(context), output, () => tracker?.refreshStatusBarTotal()),
+		),
 		vscode.commands.registerCommand("inlinr.signOut", () => revokeDevice(cliPath(context), output)),
 		vscode.commands.registerCommand("inlinr.dashboard", () => openDashboard()),
 		vscode.commands.registerCommand("inlinr.doctor", () => runDoctor(cliPath(context), output)),

@@ -3,6 +3,7 @@
 // so we don't pollute the user's PATH.
 
 import * as vscode from "vscode";
+import { spawn } from "node:child_process";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import * as crypto from "node:crypto";
@@ -11,6 +12,7 @@ import { pipeline } from "node:stream/promises";
 import { Readable } from "node:stream";
 
 const GITHUB_LATEST = "https://github.com/inlinrhq/inlinr-cli/releases/latest/download";
+const UPGRADE_INTERVAL_MS = 4 * 60 * 60 * 1000;
 
 export function cliPath(ctx: vscode.ExtensionContext): string {
 	const ext = process.platform === "win32" ? ".exe" : "";
@@ -21,7 +23,7 @@ export async function ensureCli(ctx: vscode.ExtensionContext, out: vscode.Output
 	const binPath = cliPath(ctx);
 	try {
 		await fs.access(binPath);
-		return; // TODO: version check every 4h, auto-upgrade
+		return;
 	} catch {
 		// fallthrough — needs download
 	}
@@ -67,6 +69,25 @@ function parseSha(manifest: string, name: string): string | null {
 		if (file === name) return sha ?? null;
 	}
 	return null;
+}
+
+// Schedules a background `inlinr upgrade` every 4h. The CLI no-ops if already
+// on the latest version, so calling unconditionally is safe + cheap. Stdout is
+// streamed to the output channel for visibility but we never surface UI.
+export function scheduleAutoUpgrade(
+	ctx: vscode.ExtensionContext,
+	out: vscode.OutputChannel,
+): vscode.Disposable {
+	const run = () => {
+		const child = spawn(cliPath(ctx), ["upgrade"], { stdio: "pipe" });
+		child.stdout.on("data", (d) => out.append(`[upgrade] ${d.toString()}`));
+		child.stderr.on("data", (d) => out.append(`[upgrade] ${d.toString()}`));
+		child.on("error", (err) => out.appendLine(`[upgrade] spawn failed: ${err.message}`));
+	};
+	const handle = setInterval(run, UPGRADE_INTERVAL_MS);
+	// Delay the first check so we don't race with a just-finished initial download.
+	const firstCheck = setTimeout(run, 60_000);
+	return { dispose: () => { clearInterval(handle); clearTimeout(firstCheck); } };
 }
 
 // kept for future: stream-download with pipeline() + progress

@@ -106,7 +106,7 @@ export class Tracker implements vscode.Disposable {
 		else this.statusBar.hide();
 	}
 
-	private async refreshStatusBarTotal() {
+	async refreshStatusBarTotal() {
 		const res = await fetchToday("https://inlinr.com", this.out);
 		if (!res) {
 			this.statusBar.text = "$(clock) Inlinr - sign in";

@@ -107,15 +107,14 @@ export class Tracker implements vscode.Disposable {
 	}
 
 	private async refreshStatusBarTotal() {
-		const apiUrl = vscode.workspace
-			.getConfiguration("inlinr")
-			.get<string>("apiUrl", "https://inlinr.com");
-		const res = await fetchToday(apiUrl, this.out);
+		const res = await fetchToday("https://inlinr.com", this.out);
 		if (!res) {
-			this.statusBar.text = "$(clock) Inlinr — sign in";
-			this.statusBar.tooltip = "Run 'Inlinr: Sign in' to connect this device";
+			this.statusBar.text = "$(clock) Inlinr - sign in";
+			this.statusBar.tooltip = "Click to connect this device";
+			this.statusBar.command = "inlinr.signIn";
 			return;
 		}
+		this.statusBar.command = "inlinr.dashboard";
 		this.statusBar.text = `$(clock) ${formatSeconds(res.seconds)}`;
 		const top = res.top_projects
 			.slice(0, 3)

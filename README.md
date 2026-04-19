@@ -41,7 +41,6 @@ The extension tracks your coding activity and sends anonymous heartbeats every ~
 
 | Setting | Default | Purpose |
 | --- | --- | --- |
-| `inlinr.apiUrl` | `https://inlinr.com` | Override for self-hosted or dev setups. |
 | `inlinr.statusBarEnabled` | `true` | Show today's coding time in the status bar. |
 | `inlinr.debug` | `false` | Write CLI logs to the Inlinr output channel. |
 

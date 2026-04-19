@@ -22,8 +22,7 @@ export async function runActivate(cli: string, out: vscode.OutputChannel) {
 }
 
 export function openDashboard() {
-	const url = vscode.workspace.getConfiguration("inlinr").get<string>("apiUrl", "https://inlinr.com");
-	vscode.env.openExternal(vscode.Uri.parse(url + "/dashboard"));
+	vscode.env.openExternal(vscode.Uri.parse("https://inlinr.com/dashboard"));
 }
 
 export async function runDoctor(cli: string, out: vscode.OutputChannel) {

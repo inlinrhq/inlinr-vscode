@@ -53,7 +53,7 @@ The mapped value is the wire enum: `copilot` · `cursor` · `claude-code` · `co
 ```
 Inlinr: Sign in            # spawn `inlinr activate --editor <id>`
 Inlinr: Sign out           # TODO — revoke device token
-Inlinr: Open dashboard     # browser → {apiUrl}/dashboard
+Inlinr: Open dashboard     # browser → https://inlinr.com/dashboard
 Inlinr: Doctor             # spawn `inlinr doctor`
 Inlinr: Toggle status bar  # hide/show the clock item
 ```

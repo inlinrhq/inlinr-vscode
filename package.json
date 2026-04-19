@@ -2,7 +2,7 @@
   "name": "inlinr-vscode",
   "displayName": "Inlinr",
   "description": "Time tracking for developers with AI-tool attribution. First-party VS Code extension for inlinr.com.",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "publisher": "inlinr",
   "license": "BSD-3-Clause",
   "repository": {

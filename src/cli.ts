@@ -17,6 +17,10 @@ export type Beat = {
 	cursorpos?: number;
 	lines?: number;
 	ai_tool?: string;
+	lines_added?: number;
+	lines_deleted?: number;
+	ai_lines_added?: number;
+	ai_lines_deleted?: number;
 	editor?: string;
 	plugin?: string;
 };
@@ -63,6 +67,17 @@ function buildArgs(b: Beat): string[] {
 	if (b.cursorpos != null) a.push("--cursorpos", String(b.cursorpos));
 	if (b.lines != null) a.push("--lines-in-file", String(b.lines));
 	if (b.ai_tool) a.push("--ai-tool", b.ai_tool);
+	// Sent even when zero: "0 lines changed in this window" is a real
+	// measurement, and omitting it would be indistinguishable from "the plugin
+	// doesn't know how to count".
+	if (b.lines_added != null) a.push("--lines-added", String(b.lines_added));
+	if (b.lines_deleted != null) a.push("--lines-deleted", String(b.lines_deleted));
+	if (b.ai_lines_added != null) {
+		a.push("--ai-lines-added", String(b.ai_lines_added));
+	}
+	if (b.ai_lines_deleted != null) {
+		a.push("--ai-lines-deleted", String(b.ai_lines_deleted));
+	}
 	if (b.editor) a.push("--editor", b.editor);
 	if (b.plugin) a.push("--plugin", b.plugin);
 	return a;

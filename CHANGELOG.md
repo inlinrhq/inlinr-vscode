@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.3.0
+
+### Fixed
+
+- **AI attribution no longer reports a tool that was merely installed.**
+  `detectAITool()` returned a tool as soon as its extension was active, and
+  Copilot activates at startup — so every heartbeat from everyone who had it
+  installed reported `aiTool: copilot`, whether or not they had ever accepted a
+  completion, and no other assistant was ever reported. Presence now only
+  *names* the tool; a beat carries one only when something in the window looked
+  like an assistant wrote it.
+
+  The consequence worth knowing: `editor` and `aiTool` are now independent.
+  Typing by hand inside Cursor yields `editor: cursor` with no AI tool, which
+  the previous version could not express.
+
+- **Worktrees resolve to their parent repository.** `.git` is read directly
+  when the git extension has not indexed a worktree, following `gitdir:` to
+  `commondir` for the remote while keeping the worktree's own branch.
+
+- `@types/vscode` pinned back to match `engines.vscode`. It had drifted ahead,
+  which would have let code compile against APIs missing from the oldest
+  supported VS Code — a runtime crash for those users, invisible at build time.
+
+
 ## 0.2.0
 
 - **Sign out** is now wired up: confirm dialog → spawns `inlinr signout` to revoke the device token server-side and clear it locally.

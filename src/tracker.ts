@@ -5,6 +5,7 @@ import * as vscode from "vscode";
 import * as path from "path";
 import { detectAITool } from "./ai-detect";
 import { spawnCli } from "./cli";
+import { EditAccumulator } from "./edit-attribution";
 import { resolveGitContext, watchWorkspaceChanges } from "./git";
 import { categoryLabel, fetchToday, formatSeconds } from "./today";
 
@@ -28,9 +29,18 @@ type BufferedBeat = {
 	cursorpos?: number;
 	lines?: number;
 	ai_tool?: string;
+	lines_added?: number;
+	lines_deleted?: number;
+	ai_lines_added?: number;
+	ai_lines_deleted?: number;
 	editor?: string;
 	plugin?: string;
 };
+
+// The clipboard read is async and we need the answer synchronously inside the
+// change handler, so we keep a short-lived copy. A stale clipboard only costs
+// us one misclassified paste, which is the cheap direction to be wrong in.
+const CLIPBOARD_REFRESH_MS = 2_000;
 
 export class Tracker implements vscode.Disposable {
 	private lastBeatAt = new Map<string, number>(); // key = entity → ms
@@ -38,6 +48,9 @@ export class Tracker implements vscode.Disposable {
 	private lastFlushAt = 0;
 	private statusBar: vscode.StatusBarItem;
 	private subs: vscode.Disposable[] = [];
+	private edits = new EditAccumulator();
+	private clipboard: string | null = null;
+	private clipboardReadAt = 0;
 
 	constructor(private cli: string, private out: vscode.OutputChannel) {
 		this.statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
@@ -47,8 +60,12 @@ export class Tracker implements vscode.Disposable {
 		this.refreshStatusBarVisibility();
 
 		this.subs.push(
-			// Document-level edits
-			vscode.workspace.onDidChangeTextDocument((e) => this.onActivity(e.document)),
+			// Document-level edits. Attribution happens here, on the raw change
+			// event — by flush time the shape of the edit is long gone.
+			vscode.workspace.onDidChangeTextDocument((e) => {
+				this.onDocumentChange(e);
+				this.onActivity(e.document);
+			}),
 			vscode.workspace.onDidSaveTextDocument((d) => this.onActivity(d, { isWrite: true })),
 
 			// Cursor / scroll / tab activity — signals presence without typing
@@ -135,6 +152,40 @@ export class Tracker implements vscode.Disposable {
 	}
 
 	/**
+	 * Classify every document change as human- or AI-authored and bank the line
+	 * counts against the file, to be drained onto the next heartbeat.
+	 */
+	private onDocumentChange(e: vscode.TextDocumentChangeEvent) {
+		if (e.document.uri.scheme !== "file") return;
+		if (e.contentChanges.length === 0) return;
+		void this.refreshClipboard();
+
+		this.edits.record(e.document.fileName, {
+			changes: e.contentChanges.map((c) => ({
+				insertedText: c.text,
+				removedLineCount: c.range.end.line - c.range.start.line,
+				removedCharCount: c.rangeLength,
+			})),
+			isUndoRedo:
+				e.reason === vscode.TextDocumentChangeReason.Undo ||
+				e.reason === vscode.TextDocumentChangeReason.Redo,
+			clipboard: this.clipboard,
+		});
+	}
+
+	/** Throttled clipboard snapshot — see CLIPBOARD_REFRESH_MS. */
+	private async refreshClipboard() {
+		const now = Date.now();
+		if (now - this.clipboardReadAt < CLIPBOARD_REFRESH_MS) return;
+		this.clipboardReadAt = now;
+		try {
+			this.clipboard = await vscode.env.clipboard.readText();
+		} catch {
+			this.clipboard = null;
+		}
+	}
+
+	/**
 	 * Shortcut for events that don't carry a document (terminal, debug, tasks,
 	 * window focus) — uses the currently active editor's document as the target.
 	 * No-ops if there's no active editor.
@@ -157,6 +208,10 @@ export class Tracker implements vscode.Disposable {
 		if (!isWrite && now - last < HEARTBEAT_THROTTLE_MS) return;
 		this.lastBeatAt.set(entity, now);
 
+		// Drain the edits banked since this file's last beat, so each beat
+		// carries the work done in its own window rather than a running total.
+		const edits = this.edits.drain(entity);
+
 		const beat: BufferedBeat = {
 			entity: path.relative(folder.uri.fsPath, entity) || path.basename(entity),
 			time: now / 1000,
@@ -167,8 +222,14 @@ export class Tracker implements vscode.Disposable {
 			lineno: (vscode.window.activeTextEditor?.selection.active.line ?? 0) + 1,
 			cursorpos: vscode.window.activeTextEditor?.selection.active.character,
 			lines: doc.lineCount,
-			ai_tool: detectAITool() ?? undefined,
-			editor: vscode.env.appName.toLowerCase().includes("cursor") ? "cursor" : "vscode",
+			ai_tool: detectAITool(edits) ?? undefined,
+			lines_added: edits.linesAdded,
+			lines_deleted: edits.linesDeleted,
+			ai_lines_added: edits.aiLinesAdded,
+			ai_lines_deleted: edits.aiLinesDeleted,
+			editor: vscode.env.appName.toLowerCase().includes("cursor")
+				? "cursor"
+				: "vscode",
 			plugin: `vscode-inlinr/${getPackageVersion()}`,
 		};
 
@@ -203,6 +264,10 @@ export class Tracker implements vscode.Disposable {
 					cursorpos: b.cursorpos,
 					lines: b.lines,
 					ai_tool: b.ai_tool,
+					lines_added: b.lines_added,
+					lines_deleted: b.lines_deleted,
+					ai_lines_added: b.ai_lines_added,
+					ai_lines_deleted: b.ai_lines_deleted,
 					editor: b.editor,
 					plugin: b.plugin,
 				};

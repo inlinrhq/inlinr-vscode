@@ -1,5 +1,9 @@
 # inlinr-vscode
 
+> **Reprise de session** — lis d'abord `../PROGRESS.md` (racine du workspace) : il tient l'état
+> d'avancement du chantier en cours, la prochaine action, et couvre les 3 repos. Mets-le à jour
+> après chaque modification.
+
 VS Code (and Cursor / Windsurf / other forks) extension for Inlinr.
 
 Thin event pump: editor events → buffer → spawn `inlinr heartbeat`. The CLI owns all auth + network. No network code here.
@@ -22,7 +26,9 @@ src/
   extension.ts       # activate() — registers commands + tracker
   tracker.ts        # event listeners, throttle, buffer, flush
   cli.ts            # spawn inlinr with flags + stdin JSON for extras
-  ai-detect.ts      # which AI assistant is active (extension ID map + app name)
+  ai-detect.ts      # names the assistant, only when an AI edit was observed
+  edit-attribution.ts # human vs AI classification + per-file line counters
+  git-fs.ts         # reads .git directly (worktree fallback), no vscode import
   dependencies.ts   # CLI download + SHA256 verify
   commands.ts       # signIn / signOut / dashboard / doctor handlers
 ```
@@ -42,11 +48,23 @@ launch yet — TODO: poll GitHub API every 4h, upgrade.
 
 ## AI tool detection
 
-Order of precedence in `ai-detect.ts`:
-1. App name (Cursor, Windsurf always win — they're VS Code forks).
-2. Installed-and-active extension ID (Copilot, Claude Code, Codeium, Aider, …).
+**Presence is not usage.** `detectAITool()` names a tool only when
+`edit-attribution.ts` saw a generated edit in the current window. Copilot
+activates at VS Code startup whether or not you use it, so the old
+"installed-and-active" rule marked every beat `copilot` and never detected
+anything else.
+
+- `edit-attribution.ts` classifies each `onDidChangeTextDocument`: one atomic
+  insert of ≥2 lines or ≥80 chars that isn't the clipboard → AI; anything else
+  (single chars, deletions, multi-cursor, format-on-save, undo/redo) → human.
+  Conservative on purpose — over-reporting AI would flatter the headline number.
+- `installedAiTool()` only *names* the tool once that evidence exists.
+- `editor` and `aiTool` are independent: `editor=cursor, aiTool=null` is a
+  normal beat (a person typing in Cursor).
 
 The mapped value is the wire enum: `copilot` · `cursor` · `claude-code` · `codeium` · `windsurf` · `aider`.
+
+Token counts are **not** the extension's job — see `inlinr sync-ai` in the CLI.
 
 ## Commands
 

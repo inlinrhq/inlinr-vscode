@@ -44,8 +44,16 @@ src/
 
 `dependencies.ensureCli` fetches `inlinr-{os}-{arch}{.exe}` from
 `github.com/inlinrhq/inlinr-cli/releases/latest/download/`, verifies the SHA256 against
-the manifest, and writes to `ctx.globalStorageUri`. No version check on every
-launch yet — TODO: poll GitHub API every 4h, upgrade.
+the manifest, and writes to `ctx.globalStorageUri`.
+
+`dependencies.scheduleAutoUpgrade` then keeps it current: it spawns
+`inlinr upgrade` **60 s after activation** and every 4 h after that. The CLI
+no-ops when already on the latest version, so calling unconditionally is cheap.
+Failures are logged to the output channel and never surfaced as UI.
+
+That 60-second first check is what makes the release rule below survivable —
+it is the window during which a freshly-updated extension can still be talking
+to the previous CLI.
 
 ## AI tool detection
 
@@ -98,16 +106,41 @@ Inlinr: Toggle status bar  # hide/show the clock item
 
 ## What's missing / TODO
 
-- **Project git remote resolution.** Currently unset → tracker skips the flush. Needs the built-in `vscode.git` extension API (`vscode.extensions.getExtension('vscode.git').exports.getAPI(1)` → `repositories[i].state.remotes`). Until wired, no heartbeats actually get sent.
-- **Sign out.** Placeholder in `commands.ts` — needs `POST /api/auth/device/revoke` on the server and CLI-side `inlinr signout`.
-- **Status bar time.** `tracker.refreshStatusBar` only shows a static label. Needs to poll the server (or a local summary) and display today's total.
-- **CLI auto-upgrade.** Currently only downloads once. Needs periodic version check against GitHub API.
+This list previously named four items — git remote resolution, sign out, status
+bar time, CLI auto-upgrade — that had all been built. A TODO list describing
+finished work is worse than no list: it sends the next reader off to implement
+something twice. Delete entries here when they ship.
+
+- **Beats are dropped when the CLI fails.** `tracker.flushIfDue` clears
+  `this.buffer` *before* spawning the CLI and only logs on failure, so anything
+  in flight during a CLI error is gone — it is not requeued. Tolerable while
+  failures are rare, and the direct cause of the release-order rule below.
+- **Nothing is code-signed.** Same as `inlinr-cli`: the release workflow
+  packages and publishes, it does not sign. Said plainly because this file used
+  to claim the workflow signed the `.vsix`, and it never has.
+- **No `LICENSE` file** even though `package.json` declares `BSD-3-Clause` and
+  the README says BSD-3. `vsce` warns on every release.
 
 ## Marketplaces
 
 - VS Code Marketplace: `vsce publish` (publisher: `inlinr`).
 - OpenVSX: `ovsx publish` — required for Cursor + Windsurf users (they don't have Marketplace access).
-- Release workflow: tag `vX.Y.Z` → GitHub Actions builds, signs .vsix, uploads to both marketplaces + GitHub Release.
+- Release workflow: tag `vX.Y.Z` → GitHub Actions packages the `.vsix` and uploads it to both marketplaces + the GitHub Release. **No signing step exists.**
+- Both marketplaces index asynchronously: a green workflow means the package was
+  accepted, not that the new version is being served yet. Query
+  `open-vsx.org/api/inlinr/inlinr-vscode` and the Marketplace `extensionquery`
+  API before claiming a release is live.
+
+### Release order — CLI first, always
+
+When a change adds a **new CLI flag**, `inlinr-cli` must be released *before*
+this extension. `cmd/inlinr/heartbeat.go` builds its FlagSet with
+`flag.ExitOnError`, so an unrecognised flag makes the binary exit 2 immediately;
+combined with the dropped-beats behaviour above, an extension that reaches an
+older CLI loses every beat it was flushing until the auto-upgrade catches up.
+
+Shipping the other way round is silent — nothing errors in CI, users just lose
+tracked time.
 
 ---
 

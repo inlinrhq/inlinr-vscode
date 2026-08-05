@@ -22,6 +22,7 @@ export type Beat = {
 	ai_lines_added?: number;
 	ai_lines_deleted?: number;
 	editor?: string;
+	editor_version?: string;
 	plugin?: string;
 };
 
@@ -79,6 +80,7 @@ function buildArgs(b: Beat): string[] {
 		a.push("--ai-lines-deleted", String(b.ai_lines_deleted));
 	}
 	if (b.editor) a.push("--editor", b.editor);
+	if (b.editor_version) a.push("--editor-version", b.editor_version);
 	if (b.plugin) a.push("--plugin", b.plugin);
 	return a;
 }

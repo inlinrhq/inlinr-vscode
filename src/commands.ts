@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { spawn } from "node:child_process";
+import { editorId } from "./editor";
 
 export async function runActivate(
 	cli: string,
@@ -62,10 +63,3 @@ export async function revokeDevice(cli: string, out: vscode.OutputChannel) {
 	});
 }
 
-function editorId(): string {
-	const app = vscode.env.appName.toLowerCase();
-	if (app.includes("cursor")) return "cursor";
-	if (app.includes("windsurf")) return "windsurf";
-	if (app.includes("insiders")) return "vscode-insiders";
-	return "vscode";
-}

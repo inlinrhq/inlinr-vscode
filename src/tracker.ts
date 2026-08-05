@@ -6,6 +6,7 @@ import * as path from "path";
 import { detectAITool } from "./ai-detect";
 import { spawnCli } from "./cli";
 import { EditAccumulator } from "./edit-attribution";
+import { editorId, editorVersion } from "./editor";
 import { resolveGitContext, watchWorkspaceChanges } from "./git";
 import { categoryLabel, fetchToday, formatSeconds } from "./today";
 
@@ -34,6 +35,7 @@ type BufferedBeat = {
 	ai_lines_added?: number;
 	ai_lines_deleted?: number;
 	editor?: string;
+	editor_version?: string;
 	plugin?: string;
 };
 
@@ -227,9 +229,8 @@ export class Tracker implements vscode.Disposable {
 			lines_deleted: edits.linesDeleted,
 			ai_lines_added: edits.aiLinesAdded,
 			ai_lines_deleted: edits.aiLinesDeleted,
-			editor: vscode.env.appName.toLowerCase().includes("cursor")
-				? "cursor"
-				: "vscode",
+			editor: editorId(),
+			editor_version: editorVersion(),
 			plugin: `vscode-inlinr/${getPackageVersion()}`,
 		};
 
@@ -269,6 +270,7 @@ export class Tracker implements vscode.Disposable {
 					ai_lines_added: b.ai_lines_added,
 					ai_lines_deleted: b.ai_lines_deleted,
 					editor: b.editor,
+					editor_version: b.editor_version,
 					plugin: b.plugin,
 				};
 			}),

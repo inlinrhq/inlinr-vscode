@@ -26,6 +26,7 @@ src/
   extension.ts       # activate() — registers commands + tracker
   tracker.ts        # event listeners, throttle, buffer, flush
   cli.ts            # spawn inlinr with flags + stdin JSON for extras
+  editor.ts         # which fork hosts us, and on which VS Code build
   ai-detect.ts      # names the assistant, only when an AI edit was observed
   edit-attribution.ts # human vs AI classification + per-file line counters
   git-fs.ts         # reads .git directly (worktree fallback), no vscode import
@@ -65,6 +66,25 @@ anything else.
 The mapped value is the wire enum: `copilot` · `cursor` · `claude-code` · `codeium` · `windsurf` · `aider`.
 
 Token counts are **not** the extension's job — see `inlinr sync-ai` in the CLI.
+
+## Editor identification
+
+Cursor, Windsurf and Insiders run **this exact extension** — we publish to
+OpenVSX for that reason — so `plugin` is `vscode-inlinr/<v>` in all of them and
+can never tell them apart. `editor` is the only field that can, and it comes
+from `vscode.env.appName`.
+
+Both the activation path (`Device.editor`) and the heartbeat path
+(`Heartbeat.editor`) call **`editorId()` from `editor.ts`**. They used to each
+have their own copy, and the copies drifted: the heartbeat one only knew about
+Cursor, so a Windsurf user registered a device as `windsurf` and then sent beats
+labelled `vscode` forever after. Any editor breakdown built on beats counted
+Windsurf at zero. Never re-inline this check.
+
+`editorVersion()` returns `vscode.version`, which inside a fork is the
+**embedded VS Code build**, not the fork's release — Cursor and Windsurf don't
+publish theirs to extensions. Report it as a VS Code baseline; labelling it
+"Cursor 1.99.3" would be wrong.
 
 ## Commands
 
@@ -106,7 +126,8 @@ inlinr heartbeat \
   [--write] \
   [--lineno <n>] [--cursorpos <n>] [--lines-in-file <n>] \
   [--ai-tool copilot|cursor|claude-code|codeium|windsurf|aider] \
-  [--editor vscode|cursor|windsurf|...] \
+  [--editor vscode|cursor|windsurf|vscode-insiders] \
+  [--editor-version 1.99.3] \
   [--plugin vscode-inlinr/0.1.0] \
   [--extra-heartbeats]    # flag → reads JSON array of Beat from stdin
 ```

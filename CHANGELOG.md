@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.3.1
+
+### Fixed
+
+- **Windsurf and VS Code Insiders were reported as plain `vscode` on every
+  heartbeat.** The fork check existed twice and the copies had drifted: the one
+  used at sign-in knew Cursor, Windsurf and Insiders, while the one used on
+  every beat knew only Cursor. So a Windsurf user's device registered correctly
+  and then sent beats labelled `vscode` from then on, and any per-editor
+  breakdown counted Windsurf at zero.
+
+  The server cannot recover this on its own: all VS Code forks run this same
+  extension — that is why it is published to OpenVSX — so the plugin
+  user-agent is `vscode-inlinr/x.y.z` everywhere and the editor field is the
+  only thing that can tell them apart.
+
+  Both paths now share one implementation. Beats already recorded keep the
+  wrong label: the information was never sent, so there is nothing to correct
+  after the fact.
+
+### Added
+
+- The host editor's version is now reported. Inside a fork this is the
+  **embedded VS Code build**, not the fork's own release — neither Cursor nor
+  Windsurf exposes its version to extensions — so it reads as "which VS Code
+  baseline this install runs on", never as a Cursor version.
+
+  Requires `inlinr` CLI v0.2.1 or newer, which the extension upgrades on its
+  own about a minute after startup.
+
 ## 0.3.0
 
 ### Fixed

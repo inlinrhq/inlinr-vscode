@@ -78,4 +78,8 @@ Cursor, Windsurf, VSCodium users: install from [Open VSX](https://open-vsx.org/e
 
 ## License
 
-BSD-3. Structure modelled on [vscode-wakatime](https://github.com/wakatime/vscode-wakatime) (also BSD-3).
+BSD-3 — see [LICENSE](LICENSE).
+
+Heartbeat fields and CLI flag names follow the [WakaTime](https://github.com/wakatime/vscode-wakatime)
+plugin convention, so porting an existing WakaTime editor plugin is mostly
+mechanical. The compatibility is deliberate and it is a matter of interface.

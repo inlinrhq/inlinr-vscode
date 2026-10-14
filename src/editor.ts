@@ -17,7 +17,7 @@ import * as vscode from "vscode";
  * them apart. This is the only field that does.
  *
  * Values must stay inside the server's editor whitelist
- * (`KNOWN_EDITOR_PREFIXES` in my.inlinr.com `src/routes/api/v1/heartbeats.ts`);
+ * (`KNOWN_EDITOR_PREFIXES` in inlinr-web `src/routes/api/v1/heartbeats.ts`);
  * an unknown fork is reported as plain "vscode" rather than as a name the
  * server would have to invent a bucket for.
  */

@@ -19,13 +19,13 @@ import * as vscode from "vscode";
 // Extension IDs that signal a specific AI tool is present. Keep in sync with
 // the `AiTool` enum on the server.
 const EXTENSION_MAP: Array<{ id: string; tool: string }> = [
-	{ id: "github.copilot", tool: "copilot" },
-	{ id: "github.copilot-chat", tool: "copilot" },
-	{ id: "anysphere.cursor", tool: "cursor" },
-	{ id: "anthropic.claude-code", tool: "claude-code" },
-	{ id: "codeium.codeium", tool: "codeium" },
-	{ id: "exafunction.windsurf", tool: "windsurf" },
-	{ id: "codeium.windsurf-pyright", tool: "windsurf" },
+  { id: "github.copilot", tool: "copilot" },
+  { id: "github.copilot-chat", tool: "copilot" },
+  { id: "anysphere.cursor", tool: "cursor" },
+  { id: "anthropic.claude-code", tool: "claude-code" },
+  { id: "codeium.codeium", tool: "codeium" },
+  { id: "exafunction.windsurf", tool: "windsurf" },
+  { id: "codeium.windsurf-pyright", tool: "windsurf" },
 ];
 
 /**
@@ -33,22 +33,22 @@ const EXTENSION_MAP: Array<{ id: string; tool: string }> = [
  * about whether it wrote anything.
  */
 export function installedAiTool(): string | null {
-	const app = vscode.env.appName.toLowerCase();
-	// Cursor and Windsurf are VS Code forks with the assistant built in, so
-	// there is no extension to look for.
-	if (app.includes("cursor")) return "cursor";
-	if (app.includes("windsurf")) return "windsurf";
+  const app = vscode.env.appName.toLowerCase();
+  // Cursor and Windsurf are VS Code forks with the assistant built in, so
+  // there is no extension to look for.
+  if (app.includes("cursor")) return "cursor";
+  if (app.includes("windsurf")) return "windsurf";
 
-	for (const { id, tool } of EXTENSION_MAP) {
-		const ext = vscode.extensions.getExtension(id);
-		if (ext?.isActive) return tool;
-	}
-	return null;
+  for (const { id, tool } of EXTENSION_MAP) {
+    const ext = vscode.extensions.getExtension(id);
+    if (ext?.isActive) return tool;
+  }
+  return null;
 }
 
 export type AiEvidence = {
-	/** Set by `EditAccumulator` when a change in this window looked generated. */
-	sawAiEdit: boolean;
+  /** Set by `EditAccumulator` when a change in this window looked generated. */
+  sawAiEdit: boolean;
 };
 
 /**
@@ -60,6 +60,6 @@ export type AiEvidence = {
  *     the AI line counts on the beat; we just don't invent a tool name.
  */
 export function detectAITool(evidence: AiEvidence): string | null {
-	if (!evidence.sawAiEdit) return null;
-	return installedAiTool();
+  if (!evidence.sawAiEdit) return null;
+  return installedAiTool();
 }

@@ -25,33 +25,33 @@ export const AI_MIN_INSERT_CHARS = 80;
 
 /** One entry of `TextDocumentChangeEvent.contentChanges`. */
 export type DocumentChange = {
-	/** Text this change inserted ("" for a pure deletion). */
-	insertedText: string;
-	/** Lines spanned by the replaced range, minus one (0 for a single line). */
-	removedLineCount: number;
-	/** Characters the replaced range covered. */
-	removedCharCount: number;
+  /** Text this change inserted ("" for a pure deletion). */
+  insertedText: string;
+  /** Lines spanned by the replaced range, minus one (0 for a single line). */
+  removedLineCount: number;
+  /** Characters the replaced range covered. */
+  removedCharCount: number;
 };
 
 export type ChangeEvent = {
-	changes: DocumentChange[];
-	/** True for undo/redo — a replay of authorship, not new authorship. */
-	isUndoRedo?: boolean;
-	/** Clipboard contents, when readable. Used to tell a paste from a generation. */
-	clipboard?: string | null;
+  changes: DocumentChange[];
+  /** True for undo/redo — a replay of authorship, not new authorship. */
+  isUndoRedo?: boolean;
+  /** Clipboard contents, when readable. Used to tell a paste from a generation. */
+  clipboard?: string | null;
 };
 
 export type EditSource = "human" | "ai" | "ignored";
 
 export type EventAttribution = {
-	source: EditSource;
-	linesAdded: number;
-	linesRemoved: number;
+  source: EditSource;
+  linesAdded: number;
+  linesRemoved: number;
 };
 
 function countLines(text: string): number {
-	if (text === "") return 0;
-	return text.split("\n").length - 1;
+  if (text === "") return 0;
+  return text.split("\n").length - 1;
 }
 
 /**
@@ -70,56 +70,54 @@ function countLines(text: string): number {
  *   - otherwise             → human
  */
 export function attributeChange(event: ChangeEvent): EventAttribution {
-	const { changes, isUndoRedo, clipboard } = event;
+  const { changes, isUndoRedo, clipboard } = event;
 
-	let linesAdded = 0;
-	let linesRemoved = 0;
-	for (const c of changes) {
-		linesAdded += countLines(c.insertedText);
-		linesRemoved += c.removedLineCount;
-	}
+  let linesAdded = 0;
+  let linesRemoved = 0;
+  for (const c of changes) {
+    linesAdded += countLines(c.insertedText);
+    linesRemoved += c.removedLineCount;
+  }
 
-	if (isUndoRedo) return { source: "ignored", linesAdded: 0, linesRemoved: 0 };
-	if (changes.length === 0) {
-		return { source: "ignored", linesAdded: 0, linesRemoved: 0 };
-	}
+  if (isUndoRedo) return { source: "ignored", linesAdded: 0, linesRemoved: 0 };
+  if (changes.length === 0) {
+    return { source: "ignored", linesAdded: 0, linesRemoved: 0 };
+  }
 
-	const human: EventAttribution = { source: "human", linesAdded, linesRemoved };
+  const human: EventAttribution = { source: "human", linesAdded, linesRemoved };
 
-	if (changes.length > 1) return human;
+  if (changes.length > 1) return human;
 
-	const change = changes[0];
-	if (change.insertedText === "") return human;
+  const change = changes[0];
+  if (change.insertedText === "") return human;
 
-	if (clipboard && clipboard.length > 0 && change.insertedText === clipboard) {
-		return human;
-	}
+  if (clipboard && clipboard.length > 0 && change.insertedText === clipboard) {
+    return human;
+  }
 
-	const insertedLines = countLines(change.insertedText);
-	const looksGenerated =
-		insertedLines >= AI_MIN_INSERT_LINES ||
-		change.insertedText.length >= AI_MIN_INSERT_CHARS;
+  const insertedLines = countLines(change.insertedText);
+  const looksGenerated =
+    insertedLines >= AI_MIN_INSERT_LINES ||
+    change.insertedText.length >= AI_MIN_INSERT_CHARS;
 
-	return looksGenerated
-		? { source: "ai", linesAdded, linesRemoved }
-		: human;
+  return looksGenerated ? { source: "ai", linesAdded, linesRemoved } : human;
 }
 
 export type EditTotals = {
-	linesAdded: number;
-	linesDeleted: number;
-	aiLinesAdded: number;
-	aiLinesDeleted: number;
-	/** True when at least one change in the window looked generated. */
-	sawAiEdit: boolean;
+  linesAdded: number;
+  linesDeleted: number;
+  aiLinesAdded: number;
+  aiLinesDeleted: number;
+  /** True when at least one change in the window looked generated. */
+  sawAiEdit: boolean;
 };
 
 const EMPTY: EditTotals = {
-	linesAdded: 0,
-	linesDeleted: 0,
-	aiLinesAdded: 0,
-	aiLinesDeleted: 0,
-	sawAiEdit: false,
+  linesAdded: 0,
+  linesDeleted: 0,
+  aiLinesAdded: 0,
+  aiLinesDeleted: 0,
+  sawAiEdit: false,
 };
 
 /**
@@ -130,36 +128,36 @@ const EMPTY: EditTotals = {
  * lifetime total.
  */
 export class EditAccumulator {
-	private byEntity = new Map<string, EditTotals>();
+  private byEntity = new Map<string, EditTotals>();
 
-	record(entity: string, event: ChangeEvent): EventAttribution {
-		const attribution = attributeChange(event);
-		if (attribution.source === "ignored") return attribution;
+  record(entity: string, event: ChangeEvent): EventAttribution {
+    const attribution = attributeChange(event);
+    if (attribution.source === "ignored") return attribution;
 
-		const totals = this.byEntity.get(entity) ?? { ...EMPTY };
-		totals.linesAdded += attribution.linesAdded;
-		totals.linesDeleted += attribution.linesRemoved;
-		if (attribution.source === "ai") {
-			totals.aiLinesAdded += attribution.linesAdded;
-			totals.aiLinesDeleted += attribution.linesRemoved;
-			totals.sawAiEdit = true;
-		}
-		this.byEntity.set(entity, totals);
-		return attribution;
-	}
+    const totals = this.byEntity.get(entity) ?? { ...EMPTY };
+    totals.linesAdded += attribution.linesAdded;
+    totals.linesDeleted += attribution.linesRemoved;
+    if (attribution.source === "ai") {
+      totals.aiLinesAdded += attribution.linesAdded;
+      totals.aiLinesDeleted += attribution.linesRemoved;
+      totals.sawAiEdit = true;
+    }
+    this.byEntity.set(entity, totals);
+    return attribution;
+  }
 
-	peek(entity: string): EditTotals {
-		return this.byEntity.get(entity) ?? { ...EMPTY };
-	}
+  peek(entity: string): EditTotals {
+    return this.byEntity.get(entity) ?? { ...EMPTY };
+  }
 
-	drain(entity: string): EditTotals {
-		const totals = this.byEntity.get(entity);
-		if (!totals) return { ...EMPTY };
-		this.byEntity.delete(entity);
-		return totals;
-	}
+  drain(entity: string): EditTotals {
+    const totals = this.byEntity.get(entity);
+    if (!totals) return { ...EMPTY };
+    this.byEntity.delete(entity);
+    return totals;
+  }
 
-	clear() {
-		this.byEntity.clear();
-	}
+  clear() {
+    this.byEntity.clear();
+  }
 }

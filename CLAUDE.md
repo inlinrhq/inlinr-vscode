@@ -10,7 +10,7 @@ Thin event pump: editor events → buffer → spawn `inlinr heartbeat`. The CLI 
 
 Sibling repos:
 - `inlinrhq/inlinr-cli` — the binary this extension spawns. The CLI arg spec must stay in sync.
-- `inlinrhq/my.inlinr.com` — server, owns the heartbeat wire format + Device flow.
+- `inlinrhq/inlinr-web` — server, owns the heartbeat wire format + Device flow.
 
 ## Tech
 
@@ -98,7 +98,7 @@ publish theirs to extensions. Report it as a VS Code baseline; labelling it
 
 ```
 Inlinr: Sign in            # spawn `inlinr activate --editor <id>`
-Inlinr: Sign out           # TODO — revoke device token
+Inlinr: Sign out           # spawn `inlinr signout` (revokes the device token)
 Inlinr: Open dashboard     # browser → https://inlinr.com/dashboard
 Inlinr: Doctor             # spawn `inlinr doctor`
 Inlinr: Toggle status bar  # hide/show the clock item
@@ -118,8 +118,8 @@ something twice. Delete entries here when they ship.
 - **Nothing is code-signed.** Same as `inlinr-cli`: the release workflow
   packages and publishes, it does not sign. Said plainly because this file used
   to claim the workflow signed the `.vsix`, and it never has.
-- **No `LICENSE` file** even though `package.json` declares `BSD-3-Clause` and
-  the README says BSD-3. `vsce` warns on every release.
+- **The published 0.3.1 `.vsix` has no LICENSE.** The file was added after
+  that release; the next one ships it.
 
 ## Marketplaces
 
@@ -144,7 +144,7 @@ tracked time.
 
 ---
 
-## Contract (sync with `inlinrhq/inlinr-cli` + `inlinrhq/my.inlinr.com`)
+## Contract (sync with `inlinrhq/inlinr-cli` + `inlinrhq/inlinr-web`)
 
 ### CLI invocation (this repo → `inlinr` binary)
 

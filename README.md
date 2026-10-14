@@ -62,7 +62,7 @@ Only these fields are sent to the server, per heartbeat:
 
 ## Forks of VS Code
 
-Cursor, Windsurf, VSCodium users: install from [Open VSX](https://open-vsx.org/extension/inlinrhq/inlinr-vscode) instead of the VS Code Marketplace. AI-tool attribution auto-detects the fork — no extra config.
+Cursor, Windsurf, VSCodium users: install from [Open VSX](https://open-vsx.org/extension/inlinr/inlinr-vscode) instead of the VS Code Marketplace. AI-tool attribution auto-detects the fork — no extra config.
 
 ## Troubleshooting
 

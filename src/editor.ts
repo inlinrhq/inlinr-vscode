@@ -22,11 +22,11 @@ import * as vscode from "vscode";
  * server would have to invent a bucket for.
  */
 export function editorId(): string {
-	const app = vscode.env.appName.toLowerCase();
-	if (app.includes("cursor")) return "cursor";
-	if (app.includes("windsurf")) return "windsurf";
-	if (app.includes("insiders")) return "vscode-insiders";
-	return "vscode";
+  const app = vscode.env.appName.toLowerCase();
+  if (app.includes("cursor")) return "cursor";
+  if (app.includes("windsurf")) return "windsurf";
+  if (app.includes("insiders")) return "vscode-insiders";
+  return "vscode";
 }
 
 /**
@@ -39,5 +39,5 @@ export function editorId(): string {
  * dashboard labels it as the VS Code baseline and nothing more.
  */
 export function editorVersion(): string | undefined {
-	return vscode.version || undefined;
+  return vscode.version || undefined;
 }

@@ -6,81 +6,87 @@ import { spawn } from "node:child_process";
 import type { OutputChannel } from "vscode";
 
 export type Beat = {
-	entity: string;
-	time: number;
-	project_git_remote: string;
-	branch?: string;
-	language?: string;
-	category?: string;
-	is_write?: boolean;
-	lineno?: number;
-	cursorpos?: number;
-	lines?: number;
-	ai_tool?: string;
-	lines_added?: number;
-	lines_deleted?: number;
-	ai_lines_added?: number;
-	ai_lines_deleted?: number;
-	editor?: string;
-	editor_version?: string;
-	plugin?: string;
+  entity: string;
+  time: number;
+  project_git_remote: string;
+  branch?: string;
+  language?: string;
+  category?: string;
+  is_write?: boolean;
+  lineno?: number;
+  cursorpos?: number;
+  lines?: number;
+  ai_tool?: string;
+  lines_added?: number;
+  lines_deleted?: number;
+  ai_lines_added?: number;
+  ai_lines_deleted?: number;
+  editor?: string;
+  editor_version?: string;
+  plugin?: string;
 };
 
 export function spawnCli(
-	cliPath: string,
-	primary: Beat,
-	extras: Beat[],
-	out: OutputChannel,
+  cliPath: string,
+  primary: Beat,
+  extras: Beat[],
+  out: OutputChannel,
 ): Promise<void> {
-	const args = buildArgs(primary);
-	if (extras.length > 0) args.push("--extra-heartbeats");
+  const args = buildArgs(primary);
+  if (extras.length > 0) args.push("--extra-heartbeats");
 
-	return new Promise((resolve, reject) => {
-		const child = spawn(cliPath, ["heartbeat", ...args], { stdio: ["pipe", "pipe", "pipe"] });
-		let stderr = "";
-		child.stderr.on("data", (d) => (stderr += d.toString()));
-		child.on("error", reject);
-		child.on("exit", (code) => {
-			if (code === 0) resolve();
-			else {
-				out.appendLine(`[cli] exit ${code}: ${stderr.trim()}`);
-				reject(new Error(`inlinr exited ${code}`));
-			}
-		});
-		if (extras.length > 0) {
-			child.stdin.write(JSON.stringify(extras));
-		}
-		child.stdin.end();
-	});
+  return new Promise((resolve, reject) => {
+    const child = spawn(cliPath, ["heartbeat", ...args], {
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    let stderr = "";
+    child.stderr.on("data", (d) => (stderr += d.toString()));
+    child.on("error", reject);
+    child.on("exit", (code) => {
+      if (code === 0) resolve();
+      else {
+        out.appendLine(`[cli] exit ${code}: ${stderr.trim()}`);
+        reject(new Error(`inlinr exited ${code}`));
+      }
+    });
+    if (extras.length > 0) {
+      child.stdin.write(JSON.stringify(extras));
+    }
+    child.stdin.end();
+  });
 }
 
 function buildArgs(b: Beat): string[] {
-	const a: string[] = [
-		"--entity", b.entity,
-		"--time", String(b.time),
-		"--project-git-remote", b.project_git_remote,
-	];
-	if (b.branch) a.push("--branch", b.branch);
-	if (b.language) a.push("--language", b.language);
-	if (b.category) a.push("--category", b.category);
-	if (b.is_write) a.push("--write");
-	if (b.lineno != null) a.push("--lineno", String(b.lineno));
-	if (b.cursorpos != null) a.push("--cursorpos", String(b.cursorpos));
-	if (b.lines != null) a.push("--lines-in-file", String(b.lines));
-	if (b.ai_tool) a.push("--ai-tool", b.ai_tool);
-	// Sent even when zero: "0 lines changed in this window" is a real
-	// measurement, and omitting it would be indistinguishable from "the plugin
-	// doesn't know how to count".
-	if (b.lines_added != null) a.push("--lines-added", String(b.lines_added));
-	if (b.lines_deleted != null) a.push("--lines-deleted", String(b.lines_deleted));
-	if (b.ai_lines_added != null) {
-		a.push("--ai-lines-added", String(b.ai_lines_added));
-	}
-	if (b.ai_lines_deleted != null) {
-		a.push("--ai-lines-deleted", String(b.ai_lines_deleted));
-	}
-	if (b.editor) a.push("--editor", b.editor);
-	if (b.editor_version) a.push("--editor-version", b.editor_version);
-	if (b.plugin) a.push("--plugin", b.plugin);
-	return a;
+  const a: string[] = [
+    "--entity",
+    b.entity,
+    "--time",
+    String(b.time),
+    "--project-git-remote",
+    b.project_git_remote,
+  ];
+  if (b.branch) a.push("--branch", b.branch);
+  if (b.language) a.push("--language", b.language);
+  if (b.category) a.push("--category", b.category);
+  if (b.is_write) a.push("--write");
+  if (b.lineno != null) a.push("--lineno", String(b.lineno));
+  if (b.cursorpos != null) a.push("--cursorpos", String(b.cursorpos));
+  if (b.lines != null) a.push("--lines-in-file", String(b.lines));
+  if (b.ai_tool) a.push("--ai-tool", b.ai_tool);
+  // Sent even when zero: "0 lines changed in this window" is a real
+  // measurement, and omitting it would be indistinguishable from "the plugin
+  // doesn't know how to count".
+  if (b.lines_added != null) a.push("--lines-added", String(b.lines_added));
+  if (b.lines_deleted != null)
+    a.push("--lines-deleted", String(b.lines_deleted));
+  if (b.ai_lines_added != null) {
+    a.push("--ai-lines-added", String(b.ai_lines_added));
+  }
+  if (b.ai_lines_deleted != null) {
+    a.push("--ai-lines-deleted", String(b.ai_lines_deleted));
+  }
+  if (b.editor) a.push("--editor", b.editor);
+  if (b.editor_version) a.push("--editor-version", b.editor_version);
+  if (b.plugin) a.push("--plugin", b.plugin);
+  return a;
 }

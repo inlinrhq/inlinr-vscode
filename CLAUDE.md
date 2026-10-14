@@ -18,6 +18,7 @@ Sibling repos:
 - esbuild for bundling (no webpack)
 - vitest for unit tests
 - `@vscode/vsce` for packaging + marketplace publishing
+- Biome 2.5.6 for format + lint (2 spaces, double quotes); CI runs `biome ci .`
 
 ## Layout
 

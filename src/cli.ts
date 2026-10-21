@@ -26,6 +26,22 @@ export type Beat = {
   plugin?: string;
 };
 
+/**
+ * The CLI ran and exited non-zero. Exit 1 is a failure the CLI reports
+ * itself; exit 2 is a flag or argument it refused, which only this side can
+ * report (see report.ts).
+ */
+export class CliExitError extends Error {
+  constructor(
+    readonly exitCode: number | null,
+    stderr: string,
+  ) {
+    const first = stderr.split(/\r?\n/)[0]?.trim();
+    super(`inlinr exited ${exitCode}${first ? `: ${first}` : ""}`);
+    this.name = "CliExitError";
+  }
+}
+
 export function spawnCli(
   cliPath: string,
   primary: Beat,
@@ -46,7 +62,7 @@ export function spawnCli(
       if (code === 0) resolve();
       else {
         out.appendLine(`[cli] exit ${code}: ${stderr.trim()}`);
-        reject(new Error(`inlinr exited ${code}`));
+        reject(new CliExitError(code, stderr));
       }
     });
     if (extras.length > 0) {

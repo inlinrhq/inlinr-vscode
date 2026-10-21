@@ -10,6 +10,7 @@ import * as path from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import type * as vscode from "vscode";
+import type { Reporter } from "./report";
 
 const GITHUB_LATEST =
   "https://github.com/inlinrhq/inlinr-cli/releases/latest/download";
@@ -89,14 +90,16 @@ function parseSha(manifest: string, name: string): string | null {
 export function scheduleAutoUpgrade(
   ctx: vscode.ExtensionContext,
   out: vscode.OutputChannel,
+  report: Reporter,
 ): vscode.Disposable {
   const run = () => {
     const child = spawn(cliPath(ctx), ["upgrade"], { stdio: "pipe" });
     child.stdout.on("data", (d) => out.append(`[upgrade] ${d.toString()}`));
     child.stderr.on("data", (d) => out.append(`[upgrade] ${d.toString()}`));
-    child.on("error", (err) =>
-      out.appendLine(`[upgrade] spawn failed: ${err.message}`),
-    );
+    child.on("error", (err) => {
+      out.appendLine(`[upgrade] spawn failed: ${err.message}`);
+      report("cli-upgrade", err);
+    });
   };
   const handle = setInterval(run, UPGRADE_INTERVAL_MS);
   // Delay the first check so we don't race with a just-finished initial download.

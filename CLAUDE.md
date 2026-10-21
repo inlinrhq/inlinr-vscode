@@ -75,7 +75,7 @@ anything else.
 
 The mapped value is the wire enum: `copilot` · `cursor` · `claude-code` · `codeium` · `windsurf` · `aider`.
 
-Token counts are **not** the extension's job — see `inlinr sync-ai` in the CLI.
+Token counts are **not** the extension's job: the Claude Code plugin (`inlinrhq/inlinr-claude-code`) reads them from its transcripts.
 
 ## Editor identification
 

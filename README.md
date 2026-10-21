@@ -58,6 +58,12 @@ Only these fields are sent to the server, per heartbeat:
 - Total lines in the file, cursor position
 - Timestamp
 
+When the extension cannot download or start its CLI, it tells Inlinr once a
+day: the step that failed, the error with your home folder replaced by `~`,
+the extension version, operating system and editor. No token, no file
+content. Nothing is sent while VS Code's telemetry is off
+(`telemetry.telemetryLevel`).
+
 **What is never sent**: file contents, project names (other than what git remote exposes), your keystrokes, your clipboard, any personal identifiers beyond the GitHub account you signed in with.
 
 ## Forks of VS Code

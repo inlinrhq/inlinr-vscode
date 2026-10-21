@@ -6,6 +6,8 @@ import {
   runDoctor,
 } from "./commands";
 import { cliPath, ensureCli, scheduleAutoUpgrade } from "./dependencies";
+import { editorId } from "./editor";
+import { createReporter } from "./report";
 import { Tracker } from "./tracker";
 
 let tracker: Tracker | undefined;
@@ -13,20 +15,31 @@ let tracker: Tracker | undefined;
 export async function activate(context: vscode.ExtensionContext) {
   const output = vscode.window.createOutputChannel("Inlinr");
   context.subscriptions.push(output);
+  // Failures the CLI cannot report itself, sent only while VS Code's
+  // telemetry is on and never from a development host.
+  const report = createReporter({
+    enabled: () =>
+      vscode.env.isTelemetryEnabled &&
+      context.extensionMode === vscode.ExtensionMode.Production,
+    store: context.globalState,
+    version: context.extension.packageJSON.version ?? "0.0.0",
+    editor: editorId(),
+  });
 
   try {
     await ensureCli(context, output);
   } catch (err) {
     output.appendLine(`[boot] CLI download failed: ${err}`);
+    report("cli-download", err);
     vscode.window.showErrorMessage(
       "Inlinr couldn't download its CLI. Run `Inlinr: Doctor` after checking your connection.",
     );
     return;
   }
 
-  tracker = new Tracker(cliPath(context), output);
+  tracker = new Tracker(cliPath(context), output, report);
   context.subscriptions.push(tracker);
-  context.subscriptions.push(scheduleAutoUpgrade(context, output));
+  context.subscriptions.push(scheduleAutoUpgrade(context, output, report));
 
   context.subscriptions.push(
     vscode.commands.registerCommand("inlinr.signIn", () =>

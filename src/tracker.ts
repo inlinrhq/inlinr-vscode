@@ -4,10 +4,11 @@
 import * as path from "node:path";
 import * as vscode from "vscode";
 import { detectAITool } from "./ai-detect";
-import { spawnCli } from "./cli";
+import { CliExitError, spawnCli } from "./cli";
 import { EditAccumulator } from "./edit-attribution";
 import { editorId, editorVersion } from "./editor";
 import { resolveGitContext, watchWorkspaceChanges } from "./git";
+import type { Reporter } from "./report";
 import { categoryLabel, fetchToday, formatSeconds } from "./today";
 
 const HEARTBEAT_THROTTLE_MS = 120_000; // same file → at most 1 beat / 2 min
@@ -62,6 +63,7 @@ export class Tracker implements vscode.Disposable {
   constructor(
     private cli: string,
     private out: vscode.OutputChannel,
+    private report: Reporter,
   ) {
     this.statusBar = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Left,
@@ -333,6 +335,10 @@ export class Tracker implements vscode.Disposable {
       await spawnCli(this.cli, primary, rest, this.out);
     } catch (err) {
       this.out.appendLine(`[tracker] cli failed: ${err}`);
+      // Exit 1 is the CLI's own failure, which it reports itself.
+      if (!(err instanceof CliExitError && err.exitCode === 1)) {
+        this.report("heartbeat", err);
+      }
     }
   }
 }

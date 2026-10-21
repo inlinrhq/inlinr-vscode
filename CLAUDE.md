@@ -33,6 +33,7 @@ src/
   git-fs.ts         # reads .git directly (worktree fallback), no vscode import
   dependencies.ts   # CLI download + SHA256 verify
   commands.ts       # signIn / signOut / dashboard / doctor handlers
+  report.ts         # sends the extension's own failures to Admin → Errors
 ```
 
 ## Key constants
@@ -94,6 +95,17 @@ Windsurf at zero. Never re-inline this check.
 **embedded VS Code build**, not the fork's release — Cursor and Windsurf don't
 publish theirs to extensions. Report it as a VS Code baseline; labelling it
 "Cursor 1.99.3" would be wrong.
+
+## Error reports
+
+`report.ts` sends what the CLI cannot report itself to
+`POST https://inlinr.com/api/v1/plugin-errors` (Admin → Errors): the CLI
+download, a launch that fails (`ENOENT`, an antivirus `EPERM`) and an exit 2
+(`CliExitError`, a flag the CLI does not know: the release-order mistake
+below). Exit 1 is left to the CLI, which reports its own failures. No
+network, no report; the same error once a day (`globalState`); home folder
+becomes `~`. Off when `vscode.env.isTelemetryEnabled` is false, and in a
+development host.
 
 ## Commands
 

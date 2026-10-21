@@ -131,8 +131,6 @@ something twice. Delete entries here when they ship.
 - **Nothing is code-signed.** Same as `inlinr-cli`: the release workflow
   packages and publishes, it does not sign. Said plainly because this file used
   to claim the workflow signed the `.vsix`, and it never has.
-- **The published 0.3.1 `.vsix` has no LICENSE.** The file was added after
-  that release; the next one ships it.
 
 ## Marketplaces
 

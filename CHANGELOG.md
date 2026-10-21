@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.0
+
+### Added
+
+- **The extension tells Inlinr when it cannot run the CLI.** A CLI that
+  failed to download (no binary for the platform, a checksum mismatch), could
+  not be started (missing, blocked by an antivirus) or refused a flag used to
+  be a line in the Inlinr output channel, and tracking silently stopped. These
+  now reach Inlinr, once a day for the same error: the step, the message with
+  your home folder replaced by `~`, the extension version, operating system
+  and editor. No token, no file content, nothing when the network is down.
+  Nothing is sent while VS Code's telemetry is off.
+- The package now ships the LICENSE file.
+
 ## 0.3.1
 
 ### Fixed

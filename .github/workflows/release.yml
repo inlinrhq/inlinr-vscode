@@ -33,12 +33,12 @@ jobs:
         run: bunx vsce package --no-dependencies -o inlinr-vscode-${{ github.ref_name }}.vsix
 
       - name: Publish to VS Code Marketplace
-        run: bunx vsce publish --no-dependencies --packagePath inlinr-vscode-${{ github.ref_name }}.vsix
+        run: bunx vsce publish --no-dependencies --skip-duplicate --packagePath inlinr-vscode-${{ github.ref_name }}.vsix
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
       - name: Publish to OpenVSX
-        run: bunx ovsx publish inlinr-vscode-${{ github.ref_name }}.vsix -p $OVSX_PAT
+        run: bunx ovsx publish inlinr-vscode-${{ github.ref_name }}.vsix --skip-duplicate -p $OVSX_PAT
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
 

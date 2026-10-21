@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.1
+
+### Fixed
+
+- The package no longer carries the repository's own tooling files
+  (`.claude/`, `.githooks/`, `biome.json`).
+- Published on OpenVSX, for Cursor and Windsurf: 0.4.0 only reached the
+  VS Code Marketplace.
+
 ## 0.4.0
 
 ### Added

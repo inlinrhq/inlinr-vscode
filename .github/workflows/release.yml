@@ -1,4 +1,9 @@
-# Publish inlinr-vscode to VS Code Marketplace + OpenVSX on every `v*` tag.
+# Publish inlinr-vscode to VS Code Marketplace + OpenVSX.
+#
+# Runs when a merge to main changes package.json's version to one with no tag
+# yet: the GitHub Release creates the `v<version>` tag itself. A `v*` tag
+# pushed by hand still publishes too. Ship the CLI first when the extension
+# needs a new flag (CLAUDE.md, "Release order").
 #
 # Required repo secrets (Settings → Secrets and variables → Actions):
 #   VSCE_PAT  — Azure DevOps PAT with Marketplace > Manage scope
@@ -8,6 +13,8 @@ name: release
 
 on:
   push:
+    branches: [main]
+    paths: [package.json]
     tags: ["v*"]
 
 permissions:
@@ -15,37 +22,65 @@ permissions:
 
 # Actions pinned to a commit: this job holds both marketplace tokens, and a
 # moved tag cannot change what runs with them.
+concurrency: release
+
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+      # The tag pushed, or package.json's version on main. A version already
+      # tagged was released before: the rest is skipped.
+      - name: Version
+        id: version
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            tag="$GITHUB_REF_NAME"
+          else
+            tag="v$(node -p 'require("./package.json").version')"
+            if git ls-remote --exit-code --tags origin "refs/tags/$tag" > /dev/null; then
+              echo "$tag is already released"
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - if: steps.version.outputs.skip != 'true'
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: latest
 
       - name: Install deps
+        if: steps.version.outputs.skip != 'true'
         run: bun install --frozen-lockfile
 
       - name: Build
+        if: steps.version.outputs.skip != 'true'
         run: bun run build
 
       - name: Package .vsix
-        run: bunx vsce package --no-dependencies -o inlinr-vscode-${{ github.ref_name }}.vsix
+        if: steps.version.outputs.skip != 'true'
+        run: bunx vsce package --no-dependencies -o inlinr-vscode-${{ steps.version.outputs.tag }}.vsix
 
       - name: Publish to VS Code Marketplace
-        run: bunx vsce publish --no-dependencies --skip-duplicate --packagePath inlinr-vscode-${{ github.ref_name }}.vsix
+        if: steps.version.outputs.skip != 'true'
+        run: bunx vsce publish --no-dependencies --skip-duplicate --packagePath inlinr-vscode-${{ steps.version.outputs.tag }}.vsix
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
       - name: Publish to OpenVSX
-        run: bunx ovsx publish inlinr-vscode-${{ github.ref_name }}.vsix --skip-duplicate -p $OVSX_PAT
+        if: steps.version.outputs.skip != 'true'
+        run: bunx ovsx publish inlinr-vscode-${{ steps.version.outputs.tag }}.vsix --skip-duplicate -p $OVSX_PAT
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
 
+      # On main, this creates the tag on the merged commit.
       - name: Upload .vsix to GitHub Release
+        if: steps.version.outputs.skip != 'true'
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
-          files: inlinr-vscode-${{ github.ref_name }}.vsix
+          tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          files: inlinr-vscode-${{ steps.version.outputs.tag }}.vsix
           generate_release_notes: true

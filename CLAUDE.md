@@ -139,7 +139,9 @@ something twice. Delete entries here when they ship.
 
 - VS Code Marketplace: `vsce publish` (publisher: `inlinr`).
 - OpenVSX: `ovsx publish` — required for Cursor + Windsurf users (they don't have Marketplace access).
-- Release workflow: tag `vX.Y.Z` → GitHub Actions packages the `.vsix` and uploads it to both marketplaces + the GitHub Release. **No signing step exists.**
+- Release workflow: a merge to main that changes `package.json`'s version to
+  one with no tag yet (or a `vX.Y.Z` tag pushed by hand) → GitHub Actions tags
+  the merged commit, packages the `.vsix` and uploads it to both marketplaces + the GitHub Release. **No signing step exists.**
 - Both marketplaces index asynchronously: a green workflow means the package was
   accepted, not that the new version is being served yet. Query
   `open-vsx.org/api/inlinr/inlinr-vscode` and the Marketplace `extensionquery`

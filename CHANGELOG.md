@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.5.0
+
+### Added
+
+- **Folders without a git remote are tracked.** A folder that is not a git
+  repository, or a repository with no remote, used to send nothing. Its time
+  now goes to a project named after the folder. Your home folder, a drive
+  root and a folder that only holds other repositories are still skipped.
+  Turn it off with `inlinr.trackFoldersWithoutGit`. Needs CLI 0.5.0, which
+  the extension installs on its own.
+
+### Changed
+
+- **The CLI is installed only from a signed release.** The extension checks
+  the release's signature with Inlinr's release key before trusting its
+  checksums, and refuses a binary the signed list does not hold.
+
+### Fixed
+
+- **Beats are kept when the CLI fails.** They used to be dropped when the CLI
+  could not run; they are now kept in memory, retried, and sent when VS Code
+  closes.
+
 ## 0.4.1
 
 ### Fixed

@@ -34,6 +34,7 @@ src/
   dependencies.ts   # CLI download + SHA256 verify
   commands.ts       # signIn / signOut / dashboard / doctor handlers
   report.ts         # sends the extension's own failures to Admin → Errors
+  release-key.ts    # release signature + SHA256 check of the CLI download
 ```
 
 ## Key constants
@@ -45,8 +46,13 @@ src/
 ## First-run binary download
 
 `dependencies.ensureCli` fetches `inlinr-{os}-{arch}{.exe}` from
-`github.com/inlinrhq/inlinr-cli/releases/latest/download/`, verifies the SHA256 against
-the manifest, and writes to `ctx.globalStorageUri`.
+`github.com/inlinrhq/inlinr-cli/releases/latest/download/`, checks that
+`SHA256SUMS.txt.sig` signs the manifest with the release key in
+`release-key.ts` (the same public key as inlinr-cli's
+`internal/release/release-key.pub.pem`), then the SHA256 against the manifest
+(a binary missing from it is refused), and writes to `ctx.globalStorageUri`.
+The latest CLI release must be signed before an extension carrying this
+check ships, or first runs cannot install the CLI.
 
 `dependencies.scheduleAutoUpgrade` then keeps it current: it spawns
 `inlinr upgrade` **60 s after activation** and every 4 h after that. The CLI

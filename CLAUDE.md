@@ -31,6 +31,7 @@ src/
   ai-detect.ts      # names the assistant, only when an AI edit was observed
   edit-attribution.ts # human vs AI classification + per-file line counters
   git-fs.ts         # reads .git directly (worktree fallback), no vscode import
+  folder-project.ts # a folder with no git remote: its name as the project
   dependencies.ts   # CLI download + SHA256 verify
   commands.ts       # signIn / signOut / dashboard / doctor handlers
   report.ts         # sends the extension's own failures to Admin → Errors
@@ -160,7 +161,7 @@ tracked time.
 inlinr heartbeat \
   --entity <path> \
   --time <unix_float> \
-  --project-git-remote <url> \
+  (--project-git-remote <url> | --project <folder name>) \
   [--branch <name>] \
   [--language <id>] \
   [--category coding|debugging|building|code-reviewing|writing-tests] \

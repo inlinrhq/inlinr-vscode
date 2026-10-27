@@ -64,6 +64,11 @@
           "default": true,
           "description": "Show today's coding time in the status bar."
         },
+        "inlinr.trackFoldersWithoutGit": {
+          "type": "boolean",
+          "default": true,
+          "description": "Track a folder with no git remote under its folder name. Only the name is sent, never the path."
+        },
         "inlinr.debug": {
           "type": "boolean",
           "default": false,

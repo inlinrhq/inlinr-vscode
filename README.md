@@ -27,7 +27,7 @@ The extension tracks your coding activity and sends lightweight heartbeats every
 
 ### Requirements
 
-Projects are keyed by their git `origin` remote. If a workspace has no git remote, heartbeats are buffered but never uploaded — the dashboard will look empty. Run `git remote add origin <url>` (or open a folder that has one) to start tracking.
+Projects are keyed by their git `origin` remote. A folder with no git remote is tracked under its folder name instead (only the name is sent, never the path); turn `inlinr.trackFoldersWithoutGit` off to leave such folders out. The home folder and a drive's root are never tracked this way.
 
 ## Commands
 
@@ -64,7 +64,7 @@ the extension version, operating system and editor. No token, no file
 content. Nothing is sent while VS Code's telemetry is off
 (`telemetry.telemetryLevel`).
 
-**What is never sent**: file contents, project names (other than what git remote exposes), your keystrokes, your clipboard, any personal identifiers beyond the GitHub account you signed in with.
+**What is never sent**: file contents, project names (other than what git remote exposes, or the folder's name when it has no remote), your keystrokes, your clipboard, any personal identifiers beyond the GitHub account you signed in with.
 
 ## Forks of VS Code
 
@@ -73,7 +73,7 @@ Cursor, Windsurf, VSCodium users: install from [Open VSX](https://open-vsx.org/e
 ## Troubleshooting
 
 - **Status bar still says "sign in" after signing in.** It polls every 60 s; give it a minute, or re-run **Inlinr: Sign in**.
-- **Dashboard shows no time.** Check that your workspace has a git `origin` remote (see [Requirements](#requirements)) — without one, heartbeats aren't uploaded.
+- **Dashboard shows no time.** Check that the file is inside a workspace folder: a file opened on its own, outside any folder, is not tracked. A folder with no git remote is tracked by its name unless `inlinr.trackFoldersWithoutGit` is off.
 - **Anything else.** Run **Inlinr: Doctor** and check the **Inlinr** output channel (`View → Output → Inlinr`). Enable `inlinr.debug` for verbose CLI logs.
 
 ## Links

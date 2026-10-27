@@ -1,15 +1,15 @@
-// Downloads and verifies the `inlinr` CLI binary on first run (and when a new
-// version is available). Binaries live next to the extension in globalStorage
+// Downloads the `inlinr` CLI binary on first run, and installs it only when
+// its signed SHA256SUMS.txt lists it (release-key.ts). Binaries live next to the extension in globalStorage
 // so we don't pollute the user's PATH.
 
 import { spawn } from "node:child_process";
-import * as crypto from "node:crypto";
 import { createWriteStream } from "node:fs";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import type * as vscode from "vscode";
+import { verifyRelease } from "./release-key";
 import type { Reporter } from "./report";
 
 const GITHUB_LATEST =
@@ -41,16 +41,17 @@ export async function ensureCli(
   await fs.mkdir(path.dirname(binPath), { recursive: true });
   out.appendLine(`[boot] downloading CLI: ${url}`);
 
-  const [bin, shaFile] = await Promise.all([fetchBuf(url), fetchBuf(shaUrl)]);
-
-  const expected = parseSha(
-    shaFile.toString(),
+  const [bin, shaFile, sig] = await Promise.all([
+    fetchBuf(url),
+    fetchBuf(shaUrl),
+    fetchBuf(`${shaUrl}.sig`),
+  ]);
+  verifyRelease(
+    bin,
     archiveName + (os === "windows" ? ".exe" : ""),
+    shaFile,
+    sig,
   );
-  const actual = crypto.createHash("sha256").update(bin).digest("hex");
-  if (expected && expected !== actual) {
-    throw new Error(`SHA256 mismatch: expected ${expected}, got ${actual}`);
-  }
 
   // Written beside it, then renamed: a flush spawning the CLI mid-write
   // would run a half-written binary.
@@ -78,14 +79,6 @@ async function fetchBuf(url: string): Promise<Buffer> {
   const res = await fetch(url, { redirect: "follow" });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   return Buffer.from(await res.arrayBuffer());
-}
-
-function parseSha(manifest: string, name: string): string | null {
-  for (const line of manifest.split(/\r?\n/)) {
-    const [sha, file] = line.trim().split(/\s+/);
-    if (file === name) return sha ?? null;
-  }
-  return null;
 }
 
 // Schedules a background `inlinr upgrade` every 4h. The CLI no-ops if already

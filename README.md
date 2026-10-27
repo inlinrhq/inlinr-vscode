@@ -27,7 +27,7 @@ The extension tracks your coding activity and sends lightweight heartbeats every
 
 ### Requirements
 
-Projects are keyed by their git `origin` remote. A folder with no git remote is tracked under its folder name instead (only the name is sent, never the path); turn `inlinr.trackFoldersWithoutGit` off to leave such folders out. The home folder and a drive's root are never tracked this way.
+Projects are keyed by their git `origin` remote. A folder with no git remote is tracked under its folder name instead (only the name is sent, never the path); turn `inlinr.trackFoldersWithoutGit` off to leave such folders out. The home folder, a drive's root and a folder holding several repositories are never tracked this way.
 
 ## Commands
 

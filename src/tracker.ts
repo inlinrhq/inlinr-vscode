@@ -328,13 +328,21 @@ export class Tracker implements vscode.Disposable {
     const byName = vscode.workspace
       .getConfiguration("inlinr")
       .get<boolean>("trackFoldersWithoutGit", true);
+    // Once per folder and flush: it lists the folder's children.
+    const names = new Map<string, string | null>();
+    const folderName = (fsPath: string) => {
+      if (!names.has(fsPath)) {
+        names.set(fsPath, folderProjectName(fsPath, os.homedir()));
+      }
+      return names.get(fsPath) ?? null;
+    };
     const resolved = await Promise.all(
       pending.map(async (b) => {
         const ctx = await resolveGitContext(b.docUri);
         const folder = vscode.workspace.getWorkspaceFolder(b.docUri);
         const project =
           !ctx.remote && byName && folder
-            ? folderProjectName(folder.uri.fsPath, os.homedir())
+            ? folderName(folder.uri.fsPath)
             : null;
         if (!ctx.remote && !project) return null;
         return {

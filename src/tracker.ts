@@ -1,12 +1,14 @@
 // Event pump → CLI subprocess. No network logic here — the `inlinr` binary
 // owns auth, queue, and HTTP.
 
+import * as os from "node:os";
 import * as path from "node:path";
 import * as vscode from "vscode";
 import { detectAITool } from "./ai-detect";
 import { CliExitError, spawnCli } from "./cli";
 import { EditAccumulator } from "./edit-attribution";
 import { editorId, editorVersion } from "./editor";
+import { folderProjectName } from "./folder-project";
 import { resolveGitContext, watchWorkspaceChanges } from "./git";
 import type { Reporter } from "./report";
 import { categoryLabel, fetchToday, formatSeconds } from "./today";
@@ -321,15 +323,33 @@ export class Tracker implements vscode.Disposable {
     this.buffer = [];
 
     // Resolve git context once per unique workspace folder (cached inside
-    // resolveGitContext). Beats whose folder has no git remote get dropped.
+    // resolveGitContext). A folder with no git remote is sent by its name
+    // (folder-project.ts), unless the setting says not to.
+    const byName = vscode.workspace
+      .getConfiguration("inlinr")
+      .get<boolean>("trackFoldersWithoutGit", true);
+    // Once per folder and flush: it lists the folder's children.
+    const names = new Map<string, string | null>();
+    const folderName = (fsPath: string) => {
+      if (!names.has(fsPath)) {
+        names.set(fsPath, folderProjectName(fsPath, os.homedir()));
+      }
+      return names.get(fsPath) ?? null;
+    };
     const resolved = await Promise.all(
       pending.map(async (b) => {
         const ctx = await resolveGitContext(b.docUri);
-        if (!ctx.remote) return null;
+        const folder = vscode.workspace.getWorkspaceFolder(b.docUri);
+        const project =
+          !ctx.remote && byName && folder
+            ? folderName(folder.uri.fsPath)
+            : null;
+        if (!ctx.remote && !project) return null;
         return {
           entity: b.entity,
           time: b.time,
-          project_git_remote: ctx.remote,
+          project_git_remote: ctx.remote ?? undefined,
+          project: project ?? undefined,
           branch: ctx.branch ?? undefined,
           language: b.language,
           category: b.category,
@@ -349,15 +369,21 @@ export class Tracker implements vscode.Disposable {
       }),
     );
 
-    const withRemote = resolved.filter(
+    const sendable = resolved.filter(
       (b): b is NonNullable<typeof b> => b !== null,
     );
-    if (withRemote.length === 0) {
-      this.out.appendLine("[tracker] skip: no git remote on any buffered beat");
+    if (sendable.length === 0) {
+      this.out.appendLine("[tracker] skip: no project on any buffered beat");
       return;
     }
 
-    const [primary, ...rest] = withRemote;
+    // A beat with a remote goes first when there is one: a CLI older than
+    // `--project` refuses a primary beat without a remote, and would take the
+    // whole flush down with it until it upgrades.
+    sendable.sort(
+      (a, b) => Number(!a.project_git_remote) - Number(!b.project_git_remote),
+    );
+    const [primary, ...rest] = sendable;
     if (!primary) return;
 
     try {

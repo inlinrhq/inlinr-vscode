@@ -8,7 +8,9 @@ import type { OutputChannel } from "vscode";
 export type Beat = {
   entity: string;
   time: number;
-  project_git_remote: string;
+  /** One of the two: the remote, or the folder's name when it has none. */
+  project_git_remote?: string;
+  project?: string;
   branch?: string;
   language?: string;
   category?: string;
@@ -73,14 +75,10 @@ export function spawnCli(
 }
 
 function buildArgs(b: Beat): string[] {
-  const a: string[] = [
-    "--entity",
-    b.entity,
-    "--time",
-    String(b.time),
-    "--project-git-remote",
-    b.project_git_remote,
-  ];
+  const a: string[] = ["--entity", b.entity, "--time", String(b.time)];
+  if (b.project_git_remote)
+    a.push("--project-git-remote", b.project_git_remote);
+  else if (b.project) a.push("--project", b.project);
   if (b.branch) a.push("--branch", b.branch);
   if (b.language) a.push("--language", b.language);
   if (b.category) a.push("--category", b.category);

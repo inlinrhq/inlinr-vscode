@@ -60,6 +60,14 @@ export async function activate(context: vscode.ExtensionContext) {
   );
 }
 
-export function deactivate() {
-  tracker?.dispose();
+// VS Code waits a few seconds for this promise when it closes: long enough
+// for one CLI run, so the last beats are not left in memory.
+export async function deactivate(): Promise<void> {
+  const t = tracker;
+  if (!t) return;
+  await Promise.race([
+    t.flushNow().catch(() => undefined),
+    new Promise((resolve) => setTimeout(resolve, 4_000)),
+  ]);
+  t.dispose();
 }

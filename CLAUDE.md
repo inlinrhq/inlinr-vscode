@@ -124,10 +124,6 @@ bar time, CLI auto-upgrade — that had all been built. A TODO list describing
 finished work is worse than no list: it sends the next reader off to implement
 something twice. Delete entries here when they ship.
 
-- **Beats are dropped when the CLI fails.** `tracker.flushIfDue` clears
-  `this.buffer` *before* spawning the CLI and only logs on failure, so anything
-  in flight during a CLI error is gone — it is not requeued. Tolerable while
-  failures are rare, and the direct cause of the release-order rule below.
 - **Nothing is code-signed.** Same as `inlinr-cli`: the release workflow
   packages and publishes, it does not sign. Said plainly because this file used
   to claim the workflow signed the `.vsix`, and it never has.
@@ -147,8 +143,9 @@ something twice. Delete entries here when they ship.
 When a change adds a **new CLI flag**, `inlinr-cli` must be released *before*
 this extension. `cmd/inlinr/heartbeat.go` builds its FlagSet with
 `flag.ExitOnError`, so an unrecognised flag makes the binary exit 2 immediately;
-combined with the dropped-beats behaviour above, an extension that reaches an
-older CLI loses every beat it was flushing until the auto-upgrade catches up.
+an extension that reaches an older CLI cannot send anything until the
+auto-upgrade catches up. The tracker keeps failed beats in memory (up to 2,000)
+and retries them, but they are lost if VS Code closes before that.
 
 Shipping the other way round is silent — nothing errors in CI, users just lose
 tracked time.

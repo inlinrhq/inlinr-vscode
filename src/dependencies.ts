@@ -52,7 +52,11 @@ export async function ensureCli(
     throw new Error(`SHA256 mismatch: expected ${expected}, got ${actual}`);
   }
 
-  await fs.writeFile(binPath, bin, { mode: 0o755 });
+  // Written beside it, then renamed: a flush spawning the CLI mid-write
+  // would run a half-written binary.
+  const tmp = `${binPath}.download`;
+  await fs.writeFile(tmp, bin, { mode: 0o755 });
+  await fs.rename(tmp, binPath);
   out.appendLine(`[boot] CLI installed: ${binPath}`);
 }
 

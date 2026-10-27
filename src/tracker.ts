@@ -50,10 +50,16 @@ type BufferedBeat = {
 // us one misclassified paste, which is the cheap direction to be wrong in.
 const CLIPBOARD_REFRESH_MS = 2_000;
 
+// Beats kept for a CLI that keeps failing (a missing binary, an antivirus
+// lock): about a day of steady work. Past that the oldest go first.
+const MAX_BUFFERED = 2_000;
+
 export class Tracker implements vscode.Disposable {
   private lastBeatAt = new Map<string, number>(); // key = entity → ms
   private buffer: BufferedBeat[] = [];
   private lastFlushAt = 0;
+  private flushing: Promise<void> | null = null;
+  private timers: ReturnType<typeof setInterval>[] = [];
   private statusBar: vscode.StatusBarItem;
   private subs: vscode.Disposable[] = [];
   private edits = new EditAccumulator();
@@ -129,20 +135,25 @@ export class Tracker implements vscode.Disposable {
     );
     watchWorkspaceChanges(this.subs);
 
-    setInterval(
-      () =>
-        void this.flushIfDue().catch((err) =>
-          this.out.appendLine(`[tracker] ${err}`),
-        ),
-      5_000,
+    this.timers.push(
+      setInterval(
+        () =>
+          void this.flushIfDue().catch((err) =>
+            this.out.appendLine(`[tracker] ${err}`),
+          ),
+        5_000,
+      ),
     );
 
     // Kick off status bar refresh loop — first call immediate, then every 60s.
     void this.refreshStatusBarTotal();
-    setInterval(() => void this.refreshStatusBarTotal(), STATUS_REFRESH_MS);
+    this.timers.push(
+      setInterval(() => void this.refreshStatusBarTotal(), STATUS_REFRESH_MS),
+    );
   }
 
   dispose() {
+    for (const t of this.timers) clearInterval(t);
     for (const s of this.subs) s.dispose();
     this.statusBar.dispose();
   }
@@ -282,14 +293,32 @@ export class Tracker implements vscode.Disposable {
       );
   }
 
+  /**
+   * Send whatever is buffered now: VS Code is closing, and beats left in
+   * memory would be gone with it.
+   */
+  async flushNow(): Promise<void> {
+    await this.flushing;
+    await this.flushIfDue(true);
+  }
+
   private async flushIfDue(force = false) {
+    // One CLI at a time: a second flush would send beats the first may yet
+    // put back.
+    if (this.flushing) return;
     const now = Date.now();
     if (!force && now - this.lastFlushAt < SEND_BUFFER_MS) return;
     if (this.buffer.length === 0) return;
+    this.lastFlushAt = now;
+    this.flushing = this.flush().finally(() => {
+      this.flushing = null;
+    });
+    await this.flushing;
+  }
 
+  private async flush() {
     const pending = this.buffer;
     this.buffer = [];
-    this.lastFlushAt = now;
 
     // Resolve git context once per unique workspace folder (cached inside
     // resolveGitContext). Beats whose folder has no git remote get dropped.
@@ -334,7 +363,14 @@ export class Tracker implements vscode.Disposable {
     try {
       await spawnCli(this.cli, primary, rest, this.out);
     } catch (err) {
-      this.out.appendLine(`[tracker] cli failed: ${err}`);
+      // Back in the buffer for the next flush: the server stores a beat
+      // sent twice only once, so a CLI that had queued them before failing
+      // costs nothing.
+      const kept = pending.filter((_, i) => resolved[i] !== null);
+      this.buffer = [...kept, ...this.buffer].slice(-MAX_BUFFERED);
+      this.out.appendLine(
+        `[tracker] cli failed, ${kept.length} beats kept for the next try: ${err}`,
+      );
       // Exit 1 is the CLI's own failure, which it reports itself.
       if (!(err instanceof CliExitError && err.exitCode === 1)) {
         this.report("heartbeat", err);

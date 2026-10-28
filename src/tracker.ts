@@ -139,10 +139,7 @@ export class Tracker implements vscode.Disposable {
 
     this.timers.push(
       setInterval(
-        () =>
-          void this.flushIfDue().catch((err) =>
-            this.out.appendLine(`[tracker] ${err}`),
-          ),
+        () => void this.flushIfDue().catch((err) => this.flushFailed(err)),
         5_000,
       ),
     );
@@ -229,6 +226,17 @@ export class Tracker implements vscode.Disposable {
     });
   }
 
+  /**
+   * A flush that threw before the CLI ran (resolving a project, building
+   * the beats): the extension's own code, which only the output channel
+   * used to see, while beats waited in memory. The CLI's failures are
+   * handled inside the flush.
+   */
+  private flushFailed(err: unknown) {
+    this.out.appendLine(`[tracker] ${err}`);
+    this.report("flush", err);
+  }
+
   /** Throttled clipboard snapshot — see CLIPBOARD_REFRESH_MS. */
   private async refreshClipboard() {
     const now = Date.now();
@@ -290,9 +298,7 @@ export class Tracker implements vscode.Disposable {
 
     this.buffer.push(beat);
     if (isWrite)
-      void this.flushIfDue(true).catch((err) =>
-        this.out.appendLine(`[tracker] ${err}`),
-      );
+      void this.flushIfDue(true).catch((err) => this.flushFailed(err));
   }
 
   /**

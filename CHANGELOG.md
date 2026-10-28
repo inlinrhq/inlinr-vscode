@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.1
+
+### Fixed
+
+- **A failure inside the tracker is reported.** When the extension failed
+  while preparing beats, before the CLI ran, only the Inlinr output channel
+  showed it. It is now sent to Inlinr like the extension's other failures
+  (only while VS Code's telemetry is on), so it can be fixed without waiting
+  for someone to notice missing time.
+
 ## 0.5.0
 
 ### Added

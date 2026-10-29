@@ -80,7 +80,8 @@ anything else.
 - `editor` and `aiTool` are independent: `editor=cursor, aiTool=null` is a
   normal beat (a person typing in Cursor).
 
-The mapped value is the wire enum: `copilot` · `cursor` · `claude-code` · `codeium` · `windsurf` · `aider`.
+The mapped value is one of the six editor assistants of the wire enum:
+`copilot` · `cursor` · `claude-code` · `codeium` · `windsurf` · `aider`.
 
 Token counts are **not** the extension's job: the Claude Code plugin (`inlinrhq/inlinr-claude-code`) reads them from its transcripts.
 
@@ -184,4 +185,7 @@ inlinr heartbeat \
 
 ### AI tool enum
 
-`copilot` · `cursor` · `claude-code` · `codeium` · `windsurf` · `aider`. Anything else → omit the flag.
+`copilot` · `cursor` · `claude-code` · `codeium` · `windsurf` · `aider` ·
+`codex` · `gemini-cli` · `opencode` (server: `src/lib/ai/tools.ts` in
+inlinr-web). This extension only sends the first six; the last three are
+terminal assistants the Claude Code plugin reads. Anything else → omit the flag.

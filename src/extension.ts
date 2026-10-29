@@ -13,7 +13,7 @@ import { Tracker } from "./tracker";
 let tracker: Tracker | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
-  const output = vscode.window.createOutputChannel("Inlinr");
+  const output = vscode.window.createOutputChannel("inlinr");
   context.subscriptions.push(output);
   // Failures the CLI cannot report itself, sent only while VS Code's
   // telemetry is on and never from a development host.
@@ -32,7 +32,7 @@ export async function activate(context: vscode.ExtensionContext) {
     output.appendLine(`[boot] CLI download failed: ${err}`);
     report("cli-download", err);
     vscode.window.showErrorMessage(
-      "Inlinr couldn't download its CLI. Run `Inlinr: Doctor` after checking your connection.",
+      "inlinr couldn't download its CLI. Run `inlinr: Doctor` after checking your connection.",
     );
     return;
   }

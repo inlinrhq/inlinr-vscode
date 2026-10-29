@@ -4,7 +4,7 @@
 > d'avancement du chantier en cours, la prochaine action, et couvre les 3 repos. Mets-le à jour
 > après chaque modification.
 
-VS Code (and Cursor / Windsurf / other forks) extension for Inlinr.
+VS Code (and Cursor / Windsurf / other forks) extension for inlinr.
 
 Thin event pump: editor events → buffer → spawn `inlinr heartbeat`. The CLI owns all auth + network. No network code here.
 
@@ -118,11 +118,11 @@ development host.
 ## Commands
 
 ```
-Inlinr: Sign in            # spawn `inlinr activate --editor <id>`
-Inlinr: Sign out           # spawn `inlinr signout` (revokes the device token)
-Inlinr: Open dashboard     # browser → https://inlinr.com/dashboard
-Inlinr: Doctor             # spawn `inlinr doctor`
-Inlinr: Toggle status bar  # hide/show the clock item
+inlinr: Sign in            # spawn `inlinr activate --editor <id>`
+inlinr: Sign out           # spawn `inlinr signout` (revokes the device token)
+inlinr: Open dashboard     # browser → https://inlinr.com/dashboard
+inlinr: Doctor             # spawn `inlinr doctor`
+inlinr: Toggle status bar  # hide/show the clock item
 ```
 
 ## What's missing / TODO

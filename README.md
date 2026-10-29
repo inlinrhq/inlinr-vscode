@@ -1,8 +1,8 @@
-# Inlinr for VS Code
+# inlinr for VS Code
 
 **Time tracking for developers — with AI-tool attribution.** A modern, privacy-first alternative to WakaTime, built for freelancers who bill by the hour and devs who want to know how much of their code actually came from them.
 
-## Why Inlinr
+## Why inlinr
 
 - **AI tool attribution.** See exactly how much you coded with Copilot, Cursor, Claude Code, Codeium, Windsurf, or Aider — per project, per week. Not just "AI time" in aggregate.
 - **Freelance-native.** Hourly rates, client share links, invoice-ready reports are part of the core product, not an add-on.
@@ -21,7 +21,7 @@ The extension tracks your coding activity and sends lightweight heartbeats every
 ## Setup
 
 1. Install the extension.
-2. Click **Inlinr · sign in** in the status bar — or run **Inlinr: Sign in** from the command palette (`Cmd/Ctrl+Shift+P`).
+2. Click **inlinr · sign in** in the status bar — or run **inlinr: Sign in** from the command palette (`Cmd/Ctrl+Shift+P`).
 3. Your browser opens on a one-time approval page. Sign in with GitHub.
 4. You're done. The status bar updates with today's total within ~60 seconds.
 
@@ -33,18 +33,18 @@ Projects are keyed by their git `origin` remote. A folder with no git remote is 
 
 | Command | What it does |
 | --- | --- |
-| `Inlinr: Sign in` | Authorizes this install via the GitHub device flow. |
-| `Inlinr: Sign out` | Revokes this device's token server-side and clears it locally. |
-| `Inlinr: Open dashboard` | Opens [inlinr.com/dashboard](https://inlinr.com/dashboard) in your browser. |
-| `Inlinr: Doctor` | Prints config + server reachability for debugging. |
-| `Inlinr: Toggle status bar` | Shows/hides the clock in the status bar. |
+| `inlinr: Sign in` | Authorizes this install via the GitHub device flow. |
+| `inlinr: Sign out` | Revokes this device's token server-side and clears it locally. |
+| `inlinr: Open dashboard` | Opens [inlinr.com/dashboard](https://inlinr.com/dashboard) in your browser. |
+| `inlinr: Doctor` | Prints config + server reachability for debugging. |
+| `inlinr: Toggle status bar` | Shows/hides the clock in the status bar. |
 
 ## Settings
 
 | Setting | Default | Purpose |
 | --- | --- | --- |
 | `inlinr.statusBarEnabled` | `true` | Show today's coding time in the status bar. |
-| `inlinr.debug` | `false` | Write CLI logs to the Inlinr output channel. |
+| `inlinr.debug` | `false` | Write CLI logs to the inlinr output channel. |
 
 ## Privacy
 
@@ -58,7 +58,7 @@ Only these fields are sent to the server, per heartbeat:
 - Total lines in the file, cursor position
 - Timestamp
 
-When the extension cannot download or start its CLI, it tells Inlinr once a
+When the extension cannot download or start its CLI, it tells inlinr once a
 day: the step that failed, the error with your home folder replaced by `~`,
 the extension version, operating system and editor. No token, no file
 content. Nothing is sent while VS Code's telemetry is off
@@ -72,9 +72,9 @@ Cursor, Windsurf, VSCodium users: install from [Open VSX](https://open-vsx.org/e
 
 ## Troubleshooting
 
-- **Status bar still says "sign in" after signing in.** It polls every 60 s; give it a minute, or re-run **Inlinr: Sign in**.
+- **Status bar still says "sign in" after signing in.** It polls every 60 s; give it a minute, or re-run **inlinr: Sign in**.
 - **Dashboard shows no time.** Check that the file is inside a workspace folder: a file opened on its own, outside any folder, is not tracked. A folder with no git remote is tracked by its name unless `inlinr.trackFoldersWithoutGit` is off.
-- **Anything else.** Run **Inlinr: Doctor** and check the **Inlinr** output channel (`View → Output → Inlinr`). Enable `inlinr.debug` for verbose CLI logs.
+- **Anything else.** Run **inlinr: Doctor** and check the **inlinr** output channel (`View → Output → inlinr`). Enable `inlinr.debug` for verbose CLI logs.
 
 ## Links
 

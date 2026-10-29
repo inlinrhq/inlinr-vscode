@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.3
+
+### Changed
+
+- **The name is written inlinr.** In the editor's font a capital I read as
+  an l ("lnlinr"); the extension's name, its commands, the status bar and
+  its messages now say inlinr, like the logo.
+
 ## 0.5.2
 
 ### Changed

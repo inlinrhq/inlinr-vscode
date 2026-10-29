@@ -1,8 +1,8 @@
 {
   "name": "inlinr-vscode",
-  "displayName": "Inlinr",
+  "displayName": "inlinr",
   "description": "Time tracking for developers with AI-tool attribution. First-party VS Code extension for inlinr.com.",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "publisher": "inlinr",
   "license": "BSD-3-Clause",
   "repository": {
@@ -37,27 +37,27 @@
     "commands": [
       {
         "command": "inlinr.signIn",
-        "title": "Inlinr: Sign in"
+        "title": "inlinr: Sign in"
       },
       {
         "command": "inlinr.signOut",
-        "title": "Inlinr: Sign out"
+        "title": "inlinr: Sign out"
       },
       {
         "command": "inlinr.dashboard",
-        "title": "Inlinr: Open dashboard"
+        "title": "inlinr: Open dashboard"
       },
       {
         "command": "inlinr.doctor",
-        "title": "Inlinr: Doctor"
+        "title": "inlinr: Doctor"
       },
       {
         "command": "inlinr.toggleStatusBar",
-        "title": "Inlinr: Toggle status bar"
+        "title": "inlinr: Toggle status bar"
       }
     ],
     "configuration": {
-      "title": "Inlinr",
+      "title": "inlinr",
       "properties": {
         "inlinr.statusBarEnabled": {
           "type": "boolean",
@@ -72,7 +72,7 @@
         "inlinr.debug": {
           "type": "boolean",
           "default": false,
-          "description": "Pass --log-file to the CLI and print its output to the Inlinr output channel."
+          "description": "Pass --log-file to the CLI and print its output to the inlinr output channel."
         }
       }
     }

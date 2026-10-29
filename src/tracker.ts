@@ -77,7 +77,7 @@ export class Tracker implements vscode.Disposable {
       vscode.StatusBarAlignment.Left,
       100,
     );
-    this.statusBar.text = "$(clock) Inlinr";
+    this.statusBar.text = "$(clock) inlinr";
     this.statusBar.tooltip = "Today's coding time — click to open dashboard";
     this.statusBar.command = "inlinr.dashboard";
     this.refreshStatusBarVisibility();
@@ -179,7 +179,7 @@ export class Tracker implements vscode.Disposable {
   async refreshStatusBarTotal() {
     const res = await fetchToday("https://inlinr.com", this.out);
     if (!res) {
-      this.statusBar.text = "$(clock) Inlinr - sign in";
+      this.statusBar.text = "$(clock) inlinr - sign in";
       this.statusBar.tooltip = "Click to connect this device";
       this.statusBar.command = "inlinr.signIn";
       return;
@@ -195,7 +195,7 @@ export class Tracker implements vscode.Disposable {
       .map((c) => `- ${categoryLabel(c.name)} — ${formatSeconds(c.seconds)}`)
       .join("\n");
     const parts = [
-      `**Today on Inlinr**`,
+      `**Today on inlinr**`,
       `${formatSeconds(res.seconds)} coded · ${res.beats} beats`,
     ];
     if (top) parts.push(`**Top projects**`, top);

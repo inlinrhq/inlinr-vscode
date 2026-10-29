@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.2
+
+### Changed
+
+- **New icon.** Inlinr's new logo, a ring with its dot set apart, replaces
+  the green dot in the Marketplace, OpenVSX and the Extensions view.
+
 ## 0.5.1
 
 ### Fixed

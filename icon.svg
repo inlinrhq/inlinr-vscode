@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="128" height="128">
-  <title>Inlinr</title>
-  <!-- Inlinr's icon, the same file as inlinr-web's public/favicon.svg
+  <title>inlinr</title>
+  <!-- inlinr's icon, the same file as inlinr-web's public/favicon.svg
        (computed by assets/brand/logo.py there): a ring with its dot set
        apart, on the dark tile. -->
   <rect width="512" height="512" rx="114.5" fill="#16181d"/>

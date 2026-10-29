@@ -1,5 +1,5 @@
 // What makes a downloaded CLI trustworthy: SHA256SUMS.txt signed with
-// Inlinr's release key (inlinr-cli's release.yml), then the binary's hash
+// inlinr's release key (inlinr-cli's release.yml), then the binary's hash
 // listed in it. The hash alone only proved the binary matched a list
 // published beside it. No vscode import, so it can be tested on its own.
 

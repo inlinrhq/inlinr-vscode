@@ -1,6 +1,6 @@
-// Sends the extension's own failures to Inlinr, where they show in
+// Sends the extension's own failures to inlinr, where they show in
 // Admin → Errors (POST /api/v1/plugin-errors). Before this, a CLI that could
-// not be downloaded or started was a line in the "Inlinr" output channel,
+// not be downloaded or started was a line in the "inlinr" output channel,
 // and the user simply stopped being tracked.
 //
 // Only what the CLI cannot report itself: its download, its launch (missing

@@ -25,12 +25,12 @@ export async function runActivate(
   child.on("exit", (code) => {
     if (code === 0) {
       vscode.window.showInformationMessage(
-        "Inlinr is activated for this machine.",
+        "inlinr is activated for this machine.",
       );
       void onActivated?.();
     } else {
       vscode.window.showErrorMessage(
-        `Inlinr activation failed (exit ${code}).`,
+        `inlinr activation failed (exit ${code}).`,
       );
     }
   });
@@ -49,7 +49,7 @@ export async function runDoctor(cli: string, out: vscode.OutputChannel) {
 
 export async function revokeDevice(cli: string, out: vscode.OutputChannel) {
   const confirm = await vscode.window.showWarningMessage(
-    "Sign out of Inlinr on this machine? Your local token will be revoked server-side and cleared.",
+    "Sign out of inlinr on this machine? Your local token will be revoked server-side and cleared.",
     { modal: true },
     "Sign out",
   );
@@ -63,11 +63,11 @@ export async function revokeDevice(cli: string, out: vscode.OutputChannel) {
   child.on("exit", (code) => {
     if (code === 0) {
       vscode.window.showInformationMessage(
-        "Signed out of Inlinr on this machine.",
+        "Signed out of inlinr on this machine.",
       );
     } else {
       vscode.window.showErrorMessage(
-        `Inlinr sign out failed (exit ${code}). See Output.`,
+        `inlinr sign out failed (exit ${code}). See Output.`,
       );
     }
   });

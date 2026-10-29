@@ -1,15 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="128" height="128">
   <title>Inlinr</title>
-  <!-- Background: deep charcoal, matches dashboard bg -->
-  <rect width="128" height="128" rx="28" fill="#0a0a0a"/>
-
-  <!-- Outer pulsing ring (static snapshot — no animation for Marketplace PNG) -->
-  <circle cx="64" cy="64" r="40" fill="none" stroke="#6ee7b7" stroke-width="2" opacity="0.35"/>
-  <circle cx="64" cy="64" r="32" fill="none" stroke="#6ee7b7" stroke-width="2" opacity="0.55"/>
-
-  <!-- Core dot: accent green (matches sidebar's animate-ping) -->
-  <circle cx="64" cy="64" r="18" fill="#6ee7b7"/>
-
-  <!-- Inner highlight for a slight dimensional lift -->
-  <circle cx="58" cy="58" r="5" fill="#a7f3d0" opacity="0.85"/>
+  <!-- Inlinr's icon, the same file as inlinr-web's public/favicon.svg
+       (computed by assets/brand/logo.py there): a ring with its dot set
+       apart, on the dark tile. -->
+  <rect width="512" height="512" rx="114.5" fill="#16181d"/>
+  <path d="M241.368 126.826A130 130 0 1 1 126.826 241.368" fill="none" stroke="#f3f2ee" stroke-width="52" stroke-linecap="round"/>
+  <circle cx="164.076" cy="164.076" r="33.8" fill="#00c38b"/>
 </svg>

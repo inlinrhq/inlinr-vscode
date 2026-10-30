@@ -27,7 +27,11 @@ The extension tracks your coding activity and sends lightweight heartbeats every
 
 The connection is the machine's, not the editor's: Cursor, Windsurf and the
 inlinr plugin for Claude Code on the same machine use it too. If one of them is
-already connected, there is nothing to sign in to.
+already connected, there is nothing to sign in to. To stop tracking this
+editor without signing the other plugins out, turn off `inlinr.enabled`;
+**inlinr: Sign out** signs out the whole machine. **inlinr: Sign in** on a
+machine already connected keeps its account; `inlinr activate --replace` in a
+terminal moves the machine to another one.
 
 ### Requirements
 

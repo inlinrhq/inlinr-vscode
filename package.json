@@ -59,6 +59,11 @@
     "configuration": {
       "title": "inlinr",
       "properties": {
+        "inlinr.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Track coding time in this editor. Off: nothing is recorded or sent from it, while the machine stays signed in for the other inlinr plugins (the Claude Code plugin shares the connection)."
+        },
         "inlinr.statusBarEnabled": {
           "type": "boolean",
           "default": true,

@@ -49,7 +49,7 @@ export async function runDoctor(cli: string, out: vscode.OutputChannel) {
 
 export async function revokeDevice(cli: string, out: vscode.OutputChannel) {
   const confirm = await vscode.window.showWarningMessage(
-    "Sign out of inlinr on this machine? The token is revoked and cleared. Every inlinr plugin on this machine shares it, so the Claude Code plugin stops tracking too.",
+    "Sign out of inlinr on this machine? The token is revoked and cleared. Every inlinr plugin on this machine shares it, so the Claude Code plugin stops tracking too. To stop only this editor, turn off the inlinr.enabled setting instead.",
     { modal: true },
     "Sign out",
   );

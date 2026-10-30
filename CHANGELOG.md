@@ -8,6 +8,8 @@
   Claude Code share the machine's token: sign in from either and both track,
   sign out from either and both stop. The sign-out prompt says so. The status
   bar also finds a token saved by a Claude Code plugin older than 0.7.0.
+- **`inlinr.enabled`.** Off, this editor records and sends nothing, and the
+  machine stays signed in for the Claude Code plugin.
 
 ## 0.5.3
 

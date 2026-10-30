@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.4
+
+### Changed
+
+- **One connection per machine.** The extension and the inlinr plugin for
+  Claude Code share the machine's token: sign in from either and both track,
+  sign out from either and both stop. The sign-out prompt says so. The status
+  bar also finds a token saved by a Claude Code plugin older than 0.7.0.
+
 ## 0.5.3
 
 ### Changed

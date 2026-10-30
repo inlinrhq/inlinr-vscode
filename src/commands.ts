@@ -25,7 +25,7 @@ export async function runActivate(
   child.on("exit", (code) => {
     if (code === 0) {
       vscode.window.showInformationMessage(
-        "inlinr is activated for this machine.",
+        "inlinr is activated for this machine, for every inlinr plugin on it.",
       );
       void onActivated?.();
     } else {
@@ -49,7 +49,7 @@ export async function runDoctor(cli: string, out: vscode.OutputChannel) {
 
 export async function revokeDevice(cli: string, out: vscode.OutputChannel) {
   const confirm = await vscode.window.showWarningMessage(
-    "Sign out of inlinr on this machine? Your local token will be revoked server-side and cleared.",
+    "Sign out of inlinr on this machine? The token is revoked and cleared. Every inlinr plugin on this machine shares it, so the Claude Code plugin stops tracking too.",
     { modal: true },
     "Sign out",
   );

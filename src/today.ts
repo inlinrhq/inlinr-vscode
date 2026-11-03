@@ -1,8 +1,11 @@
 // Polls GET /api/v1/me/today and formats the result for the status bar.
 //
-// Reads the device token from the CLI's config file (~/.inlinr/config.toml).
-// We don't re-implement TOML parsing — just grep the key we need. If config
-// is missing or unparseable we return null and the status bar shows a hint.
+// Reads the machine's device token from the CLI's config file
+// (~/.inlinr/config.toml), the one every inlinr plugin on the machine shares.
+// We don't re-implement TOML parsing — just grep the key we need. A machine
+// connected by a Claude Code plugin older than 0.7.0 has it only in
+// ~/.inlinr/claude-code.json, which the CLI also falls back to. If neither
+// has one we return null and the status bar shows a hint.
 
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
@@ -52,11 +55,25 @@ export async function fetchToday(
 
 async function readDeviceToken(): Promise<string | null> {
   const home = process.env.INLINR_HOME || path.join(os.homedir(), ".inlinr");
+  const read = (name: string) =>
+    fs.readFile(path.join(home, name), "utf8").catch(() => null);
+  return pickDeviceToken(
+    await read("config.toml"),
+    await read("claude-code.json"),
+  );
+}
+
+/** config.toml's token, else the one an older Claude Code plugin saved. */
+export function pickDeviceToken(
+  configToml: string | null,
+  pluginJson: string | null,
+): string | null {
+  // Match: device_token = "in_d_..." (single or double quoted)
+  const m = configToml?.match(/device_token\s*=\s*["']([^"']+)["']/);
+  if (m?.[1]) return m[1];
   try {
-    const text = await fs.readFile(path.join(home, "config.toml"), "utf8");
-    // Match: device_token = "in_d_..." (single or double quoted)
-    const m = text.match(/device_token\s*=\s*["']([^"']+)["']/);
-    return m?.[1] ?? null;
+    const token = JSON.parse(pluginJson ?? "")?.deviceToken;
+    return typeof token === "string" && token ? token : null;
   } catch {
     return null;
   }

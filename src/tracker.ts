@@ -261,6 +261,10 @@ export class Tracker implements vscode.Disposable {
 
   private onActivity(doc: vscode.TextDocument, opts: ActivityOpts = {}) {
     if (doc.uri.scheme !== "file") return;
+    // Off for this editor only: signing out would stop every inlinr plugin
+    // on the machine, since they share one connection.
+    if (!vscode.workspace.getConfiguration("inlinr").get("enabled", true))
+      return;
 
     const folder = vscode.workspace.getWorkspaceFolder(doc.uri);
     if (!folder) return;

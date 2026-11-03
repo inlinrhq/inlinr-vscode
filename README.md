@@ -25,6 +25,14 @@ The extension tracks your coding activity and sends lightweight heartbeats every
 3. Your browser opens on a one-time approval page. Sign in with GitHub.
 4. You're done. The status bar updates with today's total within ~60 seconds.
 
+The connection is the machine's, not the editor's: Cursor, Windsurf and the
+inlinr plugin for Claude Code on the same machine use it too. If one of them is
+already connected, there is nothing to sign in to. To stop tracking this
+editor without signing the other plugins out, turn off `inlinr.enabled`;
+**inlinr: Sign out** signs out the whole machine. **inlinr: Sign in** on a
+machine already connected keeps its account; `inlinr activate --replace` in a
+terminal moves the machine to another one.
+
 ### Requirements
 
 Projects are keyed by their git `origin` remote. A folder with no git remote is tracked under its folder name instead (only the name is sent, never the path); turn `inlinr.trackFoldersWithoutGit` off to leave such folders out. The home folder, a drive's root and a folder holding several repositories are never tracked this way.
@@ -34,7 +42,7 @@ Projects are keyed by their git `origin` remote. A folder with no git remote is 
 | Command | What it does |
 | --- | --- |
 | `inlinr: Sign in` | Authorizes this install via the GitHub device flow. |
-| `inlinr: Sign out` | Revokes this device's token server-side and clears it locally. |
+| `inlinr: Sign out` | Revokes this machine's token server-side and clears it locally. Every inlinr plugin on the machine shares it, so the Claude Code plugin is signed out too. |
 | `inlinr: Open dashboard` | Opens [inlinr.com/dashboard](https://inlinr.com/dashboard) in your browser. |
 | `inlinr: Doctor` | Prints config + server reachability for debugging. |
 | `inlinr: Toggle status bar` | Shows/hides the clock in the status bar. |

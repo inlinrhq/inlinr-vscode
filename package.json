@@ -2,7 +2,7 @@
   "name": "inlinr-vscode",
   "displayName": "inlinr",
   "description": "Time tracking for developers with AI-tool attribution. First-party VS Code extension for inlinr.com.",
-  "version": "0.5.5",
+  "version": "0.6.0",
   "publisher": "inlinr",
   "license": "BSD-3-Clause",
   "repository": {
@@ -50,6 +50,14 @@
       {
         "command": "inlinr.doctor",
         "title": "inlinr: Doctor"
+      },
+      {
+        "command": "inlinr.pause",
+        "title": "inlinr: Pause tracking"
+      },
+      {
+        "command": "inlinr.resume",
+        "title": "inlinr: Resume tracking"
       },
       {
         "command": "inlinr.toggleStatusBar",

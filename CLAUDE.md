@@ -41,6 +41,7 @@ src/
   commands.ts       # signIn / signOut / dashboard / doctor handlers
   report.ts         # sends the extension's own failures to Admin → Errors
   release-key.ts    # release signature + SHA256 check of the CLI download
+  pause.ts          # the machine's pause, read from config.toml for the status bar
 ```
 
 ## Key constants
@@ -127,6 +128,8 @@ inlinr: Sign in            # spawn `inlinr activate --editor <id>`
 inlinr: Sign out           # spawn `inlinr signout` (revokes the device token)
 inlinr: Open dashboard     # browser → https://inlinr.com/dashboard
 inlinr: Doctor             # spawn `inlinr doctor`
+inlinr: Pause tracking     # spawn `inlinr pause [--for 30m|1h|2h]`: the whole machine
+inlinr: Resume tracking    # spawn `inlinr resume`
 inlinr: Toggle status bar  # hide/show the clock item
 ```
 

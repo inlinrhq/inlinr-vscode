@@ -53,12 +53,31 @@ export async function ensureCli(
     sig,
   );
 
-  // Written beside it, then renamed: a flush spawning the CLI mid-write
-  // would run a half-written binary.
-  const tmp = `${binPath}.download`;
-  await fs.writeFile(tmp, bin, { mode: 0o755 });
-  await fs.rename(tmp, binPath);
+  await installBinary(binPath, bin);
   out.appendLine(`[boot] CLI installed: ${binPath}`);
+}
+
+/**
+ * Writes the binary beside its place, then renames it: a flush spawning the
+ * CLI mid-write would run a half-written binary. The temporary name carries
+ * the process id, because two windows opening at once both download: with
+ * one shared name, the second rename found the file already moved (ENOENT).
+ * A rename that fails while the binary is in place lost a race to another
+ * window (or Windows refused to replace a running .exe): nothing to do.
+ */
+export async function installBinary(binPath: string, bin: Buffer) {
+  const tmp = `${binPath}.${process.pid}.download`;
+  await fs.writeFile(tmp, bin, { mode: 0o755 });
+  try {
+    await fs.rename(tmp, binPath);
+  } catch (err) {
+    await fs.rm(tmp, { force: true }).catch(() => {});
+    try {
+      await fs.access(binPath);
+    } catch {
+      throw err;
+    }
+  }
 }
 
 function platformId(): {

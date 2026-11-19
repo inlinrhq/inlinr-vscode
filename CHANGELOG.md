@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.5
+
+### Fixed
+
+- **Two windows opening at once on a new machine.** Both downloaded the
+  CLI under the same temporary name, and the second failed with ENOENT.
+  Each window now writes its own file, and losing the race to another
+  window is not an error.
+
 ## 0.5.4
 
 ### Changed

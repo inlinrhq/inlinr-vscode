@@ -45,6 +45,8 @@ Projects are keyed by their git `origin` remote. A folder with no git remote is 
 | `inlinr: Sign out` | Revokes this machine's token server-side and clears it locally. Every inlinr plugin on the machine shares it, so the Claude Code plugin is signed out too. |
 | `inlinr: Open dashboard` | Opens [inlinr.com/dashboard](https://inlinr.com/dashboard) in your browser. |
 | `inlinr: Doctor` | Prints config + server reachability for debugging. |
+| `inlinr: Pause tracking` | Pauses tracking on the whole machine, for 30 minutes, an hour, two hours or until you resume. Nothing is tracked or sent meanwhile, from this editor or the Claude Code plugin, then or later. The status bar says so; click it to resume. |
+| `inlinr: Resume tracking` | Ends a pause. |
 | `inlinr: Toggle status bar` | Shows/hides the clock in the status bar. |
 
 ## Settings
@@ -82,6 +84,7 @@ Cursor, Windsurf, VSCodium users: install from [Open VSX](https://open-vsx.org/e
 
 - **Status bar still says "sign in" after signing in.** It polls every 60 s; give it a minute, or re-run **inlinr: Sign in**.
 - **Dashboard shows no time.** Check that the file is inside a workspace folder: a file opened on its own, outside any folder, is not tracked. A folder with no git remote is tracked by its name unless `inlinr.trackFoldersWithoutGit` is off.
+- **Hide file or branch names.** Add `hide_file_names = true` (files are sent as `HIDDEN.<ext>`, the language kept) or `hide_branch_names = true` under `[behavior]` in `~/.inlinr/config.toml`. The Claude Code plugin follows the same switches.
 - **Anything else.** Run **inlinr: Doctor** and check the **inlinr** output channel (`View → Output → inlinr`). Enable `inlinr.debug` for verbose CLI logs.
 
 ## Links

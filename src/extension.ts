@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import {
   openDashboard,
+  pauseTracking,
+  resumeTracking,
   revokeDevice,
   runActivate,
   runDoctor,
@@ -53,6 +55,16 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("inlinr.dashboard", () => openDashboard()),
     vscode.commands.registerCommand("inlinr.doctor", () =>
       runDoctor(cliPath(context), output),
+    ),
+    vscode.commands.registerCommand("inlinr.pause", () =>
+      pauseTracking(cliPath(context), output, () =>
+        tracker?.refreshStatusBarTotal(),
+      ),
+    ),
+    vscode.commands.registerCommand("inlinr.resume", () =>
+      resumeTracking(cliPath(context), output, () =>
+        tracker?.refreshStatusBarTotal(),
+      ),
     ),
     vscode.commands.registerCommand("inlinr.toggleStatusBar", () =>
       tracker?.toggleStatusBar(),

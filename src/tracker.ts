@@ -10,6 +10,7 @@ import { EditAccumulator } from "./edit-attribution";
 import { editorId, editorVersion } from "./editor";
 import { folderProjectName } from "./folder-project";
 import { resolveGitContext, watchWorkspaceChanges } from "./git";
+import { readPausedUntil } from "./pause";
 import type { Reporter } from "./report";
 import { categoryLabel, fetchToday, formatSeconds } from "./today";
 
@@ -177,6 +178,18 @@ export class Tracker implements vscode.Disposable {
   }
 
   async refreshStatusBarTotal() {
+    // Paused on this machine: said first, and a click resumes.
+    const until = await readPausedUntil();
+    if (until) {
+      this.statusBar.text = "$(debug-pause) inlinr paused";
+      this.statusBar.tooltip = `Tracking paused on this machine${
+        Number.isFinite(until)
+          ? ` until ${new Date(until).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+          : ""
+      }: nothing is sent, from this editor or the Claude Code plugin. Click to resume.`;
+      this.statusBar.command = "inlinr.resume";
+      return;
+    }
     const res = await fetchToday("https://inlinr.com", this.out);
     if (!res) {
       this.statusBar.text = "$(clock) inlinr - sign in";
@@ -281,7 +294,14 @@ export class Tracker implements vscode.Disposable {
     const edits = this.edits.drain(entity);
 
     const beat: BufferedBeat = {
-      entity: path.relative(folder.uri.fsPath, entity) || path.basename(entity),
+      // From the folder, with "/" between folders on every system: the
+      // same file then reads the same from Windows, macOS and the Claude
+      // Code plugin.
+      entity: (
+        path.relative(folder.uri.fsPath, entity) || path.basename(entity)
+      )
+        .split(path.sep)
+        .join("/"),
       time: now / 1000,
       docUri: doc.uri,
       language: doc.languageId || undefined,

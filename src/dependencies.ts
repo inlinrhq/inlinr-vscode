@@ -3,11 +3,9 @@
 // so we don't pollute the user's PATH.
 
 import { spawn } from "node:child_process";
-import { createWriteStream } from "node:fs";
+import { randomBytes } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { Readable } from "node:stream";
-import { pipeline } from "node:stream/promises";
 import type * as vscode from "vscode";
 import { verifyRelease } from "./release-key";
 import type { Reporter } from "./report";
@@ -53,12 +51,28 @@ export async function ensureCli(
     sig,
   );
 
-  // Written beside it, then renamed: a flush spawning the CLI mid-write
-  // would run a half-written binary.
-  const tmp = `${binPath}.download`;
-  await fs.writeFile(tmp, bin, { mode: 0o755 });
-  await fs.rename(tmp, binPath);
+  await installBinary(binPath, bin);
   out.appendLine(`[boot] CLI installed: ${binPath}`);
+}
+
+// Written beside it, then renamed: a flush spawning the CLI mid-write would
+// run a half-written binary. The copy's name is this window's own: two
+// windows opening at once both download, and with one shared name the
+// second rename found the file already moved (ENOENT). When the rename
+// fails but the binary is there, another window installed it first.
+export async function installBinary(binPath: string, bin: Buffer) {
+  const tmp = `${binPath}.${process.pid}-${randomBytes(4).toString("hex")}.download`;
+  await fs.writeFile(tmp, bin, { mode: 0o755 });
+  try {
+    await fs.rename(tmp, binPath);
+  } catch (err) {
+    await fs.rm(tmp, { force: true });
+    const installed = await fs.access(binPath).then(
+      () => true,
+      () => false,
+    );
+    if (!installed) throw err;
+  }
 }
 
 function platformId(): {
@@ -108,8 +122,3 @@ export function scheduleAutoUpgrade(
     },
   };
 }
-
-// kept for future: stream-download with pipeline() + progress
-void Readable;
-void pipeline;
-void createWriteStream;

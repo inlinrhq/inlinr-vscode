@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.5
+
+### Fixed
+
+- **Two windows opening at once.** Each window downloaded the CLI under the
+  same temporary name, and the second could fail with ENOENT and track
+  nothing until VS Code restarted. Each window now writes its own copy, and
+  a window that finds the CLI already installed by another one goes on.
+
 ## 0.5.4
 
 ### Changed

@@ -4,6 +4,12 @@
 > d'avancement du chantier en cours, la prochaine action, et couvre les 3 repos. Mets-le à jour
 > après chaque modification.
 
+> **Socle commun** : les règles partagées par toutes les apps de Thibault
+> (attribution, identité git, PR, relecture, qualité, textes, perfs,
+> accessibilité, CI, VPS, Linear, remise en question des choix) sont dans le
+> dépôt `7IBO/socle` : lis son CLAUDE.md, puis le fichier du sujet. Ce fichier
+> ne garde que ce qui est propre à ce dépôt et gagne en cas d'écart.
+
 VS Code (and Cursor / Windsurf / other forks) extension for inlinr.
 
 Thin event pump: editor events → buffer → spawn `inlinr heartbeat`. The CLI owns all auth + network. No network code here.

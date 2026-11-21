@@ -90,6 +90,9 @@ Cursor, Windsurf, VSCodium users: install from [Open VSX](https://open-vsx.org/e
 ## Links
 
 - Dashboard: [inlinr.com](https://inlinr.com)
+- Setup, step by step, and what the extension sends: [VS Code integration](https://inlinr.com/integrations/vscode), with the same page for [Cursor](https://inlinr.com/integrations/cursor) and [Windsurf](https://inlinr.com/integrations/windsurf)
+- [How coding time is counted](https://inlinr.com/guides/how-coding-time-is-counted) from these heartbeats
+- [How AI-written code is measured](https://inlinr.com/guides/measuring-ai-written-code), and why presence is not usage
 - CLI: [github.com/inlinrhq/inlinr-cli](https://github.com/inlinrhq/inlinr-cli)
 - Source: [github.com/inlinrhq/inlinr-vscode](https://github.com/inlinrhq/inlinr-vscode)
 

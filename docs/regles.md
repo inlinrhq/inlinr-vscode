@@ -95,7 +95,7 @@ récit de l'auteur**. Quand un seul suffit, c'est le premier de la ligne.
 |---|---|
 | Suivi des événements, attribution des modifications, lancement de la CLI, lecture de git, barre d'état | code, deux fois : justesse et cas limites, puis charge (travail à chaque frappe, lancements de la CLI, taille du tampon) |
 | Workflows, téléchargement et vérification de la CLI, signalement d'erreurs, ce qui quitte la machine | code + ops |
-| Docs ou outillage seuls | code, deux fois : les faits et commandes, puis l'effet sur les autres règles |
+| Docs ou outillage seuls | code, une fois (étape 4 du cycle) : les faits et commandes, et l'effet sur les autres règles |
 
 - **Code** : justesse (vide, null, cas limites, plusieurs fenêtres ouvertes
   en même temps, un fork de VS Code) ; rien de gardé ni d'envoyé sans borne ;
@@ -152,9 +152,9 @@ relecteur se vérifie, ce n'est pas un ordre.
   faux se corrige dans la PR qui change le code.
 - Un refactor est sa propre PR (`refactor(scope): …`), sans changement de
   comportement, avec les tests qui le prouvent.
-- Une règle ou un contrat qui change met à jour, dans la même PR, le CLAUDE.md,
-  le README (commandes, réglages, « Privacy ») et la section du contrat des
-  autres dépôts.
+- Une règle ou un contrat qui change met à jour, dans la même PR, le CLAUDE.md
+  et le README (commandes, réglages, « Privacy »), puis la section du contrat
+  des autres dépôts, par une PR dans chacun.
 
 ## Textes
 

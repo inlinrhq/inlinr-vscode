@@ -12,7 +12,7 @@
 
 VS Code (and Cursor / Windsurf / other forks) extension for inlinr.
 
-Thin event pump: editor events → buffer → spawn `inlinr heartbeat`. The CLI owns all auth + network. No network code here.
+Thin event pump: editor events → buffer → spawn `inlinr heartbeat`. The CLI owns auth and sends every beat: no heartbeat network code here. The extension itself calls the network in three places: the CLI download (`dependencies.ts`), today's total (`today.ts`) and its own error reports (`report.ts`).
 
 The token is the machine's (`[auth] device_token` in `~/.inlinr/config.toml`),
 shared with the Claude Code plugin: signing in or out from either does it for

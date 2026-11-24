@@ -1,14 +1,14 @@
 # inlinr-vscode
 
-> **Reprise de session** — lis d'abord `../PROGRESS.md` (racine du workspace) : il tient l'état
-> d'avancement du chantier en cours, la prochaine action, et couvre les 3 repos. Mets-le à jour
-> après chaque modification.
+> **Reprise de session** — sur le poste local, lis d'abord `../PROGRESS.md` (racine du
+> workspace, absent d'un clone seul) : il tient l'état d'avancement du chantier en cours, la
+> prochaine action, et couvre les quatre dépôts (inlinr-web, inlinr-cli, inlinr-vscode,
+> inlinr-claude-code). Mets-le à jour après chaque modification.
 
-> **Socle commun** : les règles partagées par toutes les apps de Thibault
-> (attribution, identité git, PR, relecture, qualité, textes, perfs,
-> accessibilité, CI, VPS, Linear, remise en question des choix) sont dans le
-> dépôt `7IBO/socle` : lis son CLAUDE.md, puis le fichier du sujet. Ce fichier
-> ne garde que ce qui est propre à ce dépôt et gagne en cas d'écart.
+> **Règles communes** : attribution, identité git, PR, relecture, qualité,
+> textes, CI et releases, appels au réseau, clés, Linear, fils et remise en
+> question des choix sont dans [docs/regles.md](docs/regles.md). Ce dépôt se
+> suffit : rien à lire ailleurs. Ce fichier gagne en cas d'écart.
 
 VS Code (and Cursor / Windsurf / other forks) extension for inlinr.
 

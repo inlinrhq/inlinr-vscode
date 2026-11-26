@@ -5,22 +5,31 @@
 // No vscode import, so it can be tested on its own.
 
 import { existsSync, readdirSync } from "node:fs";
+import { tmpdir } from "node:os";
 import * as path from "node:path";
+import { isTemporaryRoot, SCRATCH_PROJECT } from "./temporary";
 
 /**
  * The folder's name, sent as `--project`, or null when the folder is too
  * broad to be a project: the home folder, a drive's root, or a folder that
  * holds repositories (the parent of several clones, whose files belong to
- * their own repositories). Only the name leaves the machine, never the path.
+ * their own repositories). A temporary folder (an agent's or a quick
+ * test's, in the system's temp folder, a scratchpad, `.claude/worktrees/`)
+ * is `scratch`, one project for all of them, never its own. Only the name
+ * leaves the machine, never the path.
  */
 export function folderProjectName(
   folderPath: string,
   home: string,
+  temp = tmpdir(),
 ): string | null {
   const resolved = path.resolve(folderPath);
   if (path.dirname(resolved) === resolved) return null;
+  // Too broad first, even in a temporary folder: some containers set the
+  // home folder to /tmp, and /tmp may hold clones.
   if (samePath(resolved, path.resolve(home))) return null;
   if (holdsRepositories(resolved)) return null;
+  if (isTemporaryRoot(resolved, temp)) return SCRATCH_PROJECT;
   const name = path.basename(resolved).trim();
   return name || null;
 }

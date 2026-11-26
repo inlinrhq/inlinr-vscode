@@ -7,16 +7,16 @@
 import { existsSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
-import { isTemporaryRoot } from "./temporary";
+import { isTemporaryRoot, SCRATCH_PROJECT } from "./temporary";
 
 /**
  * The folder's name, sent as `--project`, or null when the folder is too
  * broad to be a project: the home folder, a drive's root, or a folder that
  * holds repositories (the parent of several clones, whose files belong to
- * their own repositories), or a temporary folder (an agent's or a quick
- * test's, in the system's temp folder, a scratchpad, `.claude/worktrees/`):
- * it would show up as a project of its own. Only the name leaves the
- * machine, never the path.
+ * their own repositories). A temporary folder (an agent's or a quick
+ * test's, in the system's temp folder, a scratchpad, `.claude/worktrees/`)
+ * is `scratch`, one project for all of them, never its own. Only the name
+ * leaves the machine, never the path.
  */
 export function folderProjectName(
   folderPath: string,
@@ -25,7 +25,7 @@ export function folderProjectName(
 ): string | null {
   const resolved = path.resolve(folderPath);
   if (path.dirname(resolved) === resolved) return null;
-  if (isTemporaryRoot(resolved, temp)) return null;
+  if (isTemporaryRoot(resolved, temp)) return SCRATCH_PROJECT;
   if (samePath(resolved, path.resolve(home))) return null;
   if (holdsRepositories(resolved)) return null;
   const name = path.basename(resolved).trim();

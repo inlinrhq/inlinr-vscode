@@ -27,10 +27,10 @@ describe("folderProjectName", () => {
     }
   });
 
-  it("refuses a temporary folder", () => {
-    expect(folderProjectName("/tmp/kw-2202", "/home/me")).toBeNull();
+  it("sends every temporary folder as one scratch project", () => {
+    expect(folderProjectName("/tmp/kw-2202", "/home/me")).toBe("scratch");
     expect(
       folderProjectName("/home/me/app/.claude/worktrees/wt-1188m", "/home/me"),
-    ).toBeNull();
+    ).toBe("scratch");
   });
 });

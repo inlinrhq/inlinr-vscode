@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.1
+
+### Fixed
+
+- **Agents' temporary folders.** A folder with no git remote in the system's
+  temp folder, a scratchpad, `.claude/worktrees/` or a cache is tracked under
+  one project, `scratch`, instead of a project of its own per folder.
+
 ## 0.5.5
 
 ### Fixed

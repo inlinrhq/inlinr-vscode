@@ -4,40 +4,48 @@
 
 ### Fixed
 
-- **Agents' temporary folders.** A folder with no git remote in the system's
-  temp folder, a scratchpad, `.claude/worktrees/` or a cache is tracked under
-  one project, `scratch`, instead of a project of its own per folder.
+- **Agents' temporary folders.** A folder with no git remote used to become
+  a project of its own, named after the folder: an agent's `git init` in
+  `/tmp` gave a new project each time. When such a folder sits in a temporary
+  place (the system's temp folder, a scratchpad, `.claude/worktrees/`, a
+  cache), its time now goes to one project, `scratch`. A git worktree, in
+  `.claude/worktrees/` or elsewhere, still counts in its own repository's
+  project, as before: its remote is read from the repository it belongs to.
 
 ## 0.6.0
 
 ### Added
 
-- **Pause tracking.** Pause tracking (30 minutes, 1 hour, 2 hours, until
-  resumed) and Resume tracking pause the whole machine through the CLI; the
-  status bar shows the pause and resumes on a click.
+- **Pause tracking.** Pause tracking (30 minutes, 1 hour, 2 hours, or until
+  you resume) and Resume tracking pause the whole machine: this editor and
+  the Claude Code plugin send nothing meanwhile, then or later. The status
+  bar shows the pause; click it to resume. Needs CLI 0.8.0, which the
+  extension installs on its own.
 
 ### Fixed
 
-- **Paths on Windows.** A file's path from its folder is sent with `/` on
-  every system.
+- **The same file from Windows and from Claude Code.** On Windows a file's
+  path was sent with `\`, so a file edited by hand and by the Claude Code
+  plugin counted as two files. Paths are now sent with `/` on every system.
 
 ## 0.5.5
 
 ### Fixed
 
 - **Two windows opening at once.** Each window downloaded the CLI under the
-  same temporary name, and the second could fail with ENOENT and track
-  nothing until VS Code restarted. Each window now writes its own copy, and
-  a window that finds the CLI already installed by another one goes on.
+  same temporary name, and the second could fail and track nothing until
+  VS Code restarted. Each window now writes its own copy, and a window that
+  finds the CLI already installed by another one goes on.
 
 ## 0.5.4
 
 ### Changed
 
 - **One connection per machine.** The extension and the inlinr plugin for
-  Claude Code share the machine's token: sign in from either and both track,
-  sign out from either and both stop. The sign-out prompt says so. The status
-  bar also finds a token saved by a Claude Code plugin older than 0.7.0.
+  Claude Code share the machine's sign-in: sign in from either and both
+  track, sign out from either and both stop. The sign-out prompt says so.
+  The status bar also finds a sign-in saved by a Claude Code plugin older
+  than 0.7.0.
 - **`inlinr.enabled`.** Off, this editor records and sends nothing, and the
   machine stays signed in for the Claude Code plugin.
 
@@ -53,7 +61,7 @@
 
 ### Changed
 
-- **New icon.** Inlinr's new logo, a ring with its dot set apart, replaces
+- **New icon.** inlinr's new logo, a ring with its dot set apart, replaces
   the green dot in the Marketplace, OpenVSX and the Extensions view.
 
 ## 0.5.1
@@ -61,8 +69,8 @@
 ### Fixed
 
 - **A failure inside the tracker is reported.** When the extension failed
-  while preparing beats, before the CLI ran, only the Inlinr output channel
-  showed it. It is now sent to Inlinr like the extension's other failures
+  while preparing beats, before the CLI ran, only the inlinr output channel
+  showed it. It is now sent to inlinr like the extension's other failures
   (only while VS Code's telemetry is on), so it can be fixed without waiting
   for someone to notice missing time.
 
@@ -80,7 +88,7 @@
 ### Changed
 
 - **The CLI is installed only from a signed release.** The extension checks
-  the release's signature with Inlinr's release key before trusting its
+  the release's signature with inlinr's release key before trusting its
   checksums, and refuses a binary the signed list does not hold.
 
 ### Fixed
@@ -102,11 +110,11 @@
 
 ### Added
 
-- **The extension tells Inlinr when it cannot run the CLI.** A CLI that
+- **The extension tells inlinr when it cannot run the CLI.** A CLI that
   failed to download (no binary for the platform, a checksum mismatch), could
   not be started (missing, blocked by an antivirus) or refused a flag used to
-  be a line in the Inlinr output channel, and tracking silently stopped. These
-  now reach Inlinr, once a day for the same error: the step, the message with
+  be a line in the inlinr output channel, and tracking silently stopped. These
+  now reach inlinr, once a day for the same error: the step, the message with
   your home folder replaced by `~`, the extension version, operating system
   and editor. No token, no file content, nothing when the network is down.
   Nothing is sent while VS Code's telemetry is off.
@@ -114,77 +122,60 @@
 
 ## 0.3.1
 
-### Fixed
-
-- **Windsurf and VS Code Insiders were reported as plain `vscode` on every
-  heartbeat.** The fork check existed twice and the copies had drifted: the one
-  used at sign-in knew Cursor, Windsurf and Insiders, while the one used on
-  every beat knew only Cursor. So a Windsurf user's device registered correctly
-  and then sent beats labelled `vscode` from then on, and any per-editor
-  breakdown counted Windsurf at zero.
-
-  The server cannot recover this on its own: all VS Code forks run this same
-  extension — that is why it is published to OpenVSX — so the plugin
-  user-agent is `vscode-inlinr/x.y.z` everywhere and the editor field is the
-  only thing that can tell them apart.
-
-  Both paths now share one implementation. Beats already recorded keep the
-  wrong label: the information was never sent, so there is nothing to correct
-  after the fact.
-
 ### Added
 
-- The host editor's version is now reported. Inside a fork this is the
-  **embedded VS Code build**, not the fork's own release — neither Cursor nor
-  Windsurf exposes its version to extensions — so it reads as "which VS Code
-  baseline this install runs on", never as a Cursor version.
+- **The editor's version is sent.** Inside Cursor or Windsurf it is the
+  VS Code version the editor is built on, not the editor's own release,
+  which neither shows to extensions. Needs CLI 0.2.1, which the extension
+  installs on its own about a minute after startup.
 
-  Requires `inlinr` CLI v0.2.1 or newer, which the extension upgrades on its
-  own about a minute after startup.
+### Fixed
+
+- **Windsurf and VS Code Insiders were counted as VS Code.** The sign-in
+  recognised them, but every beat after it was labelled `vscode`, so a
+  breakdown by editor showed Windsurf at zero. Beats are now labelled with
+  the right editor. Time recorded before this release keeps the old label:
+  the editor was never sent, so it cannot be corrected afterwards.
 
 ## 0.3.0
 
 ### Fixed
 
-- **AI attribution no longer reports a tool that was merely installed.**
-  `detectAITool()` returned a tool as soon as its extension was active, and
-  Copilot activates at startup — so every heartbeat from everyone who had it
-  installed reported `aiTool: copilot`, whether or not they had ever accepted a
-  completion, and no other assistant was ever reported. Presence now only
-  *names* the tool; a beat carries one only when something in the window looked
-  like an assistant wrote it.
-
-  The consequence worth knowing: `editor` and `aiTool` are now independent.
-  Typing by hand inside Cursor yields `editor: cursor` with no AI tool, which
-  the previous version could not express.
-
-- **Worktrees resolve to their parent repository.** `.git` is read directly
-  when the git extension has not indexed a worktree, following `gitdir:` to
-  `commondir` for the remote while keeping the worktree's own branch.
-
-- `@types/vscode` pinned back to match `engines.vscode`. It had drifted ahead,
-  which would have let code compile against APIs missing from the oldest
-  supported VS Code — a runtime crash for those users, invisible at build time.
-
+- **An assistant is named only when it wrote something.** Copilot starts
+  with VS Code, so every beat of everyone who had it installed was marked as
+  Copilot's, used or not, and no other assistant was ever named. A beat now
+  names an assistant only when an edit in that window looked like one an
+  assistant made. Typing by hand in Cursor is now your time in Cursor, with
+  no assistant.
+- **Worktrees count in their repository.** When VS Code's git extension has
+  not read a worktree yet, the extension reads its `.git` itself: the remote
+  comes from the repository it belongs to, the branch is the worktree's own.
+- The extension no longer risks using editor features missing from the
+  oldest VS Code it supports.
 
 ## 0.2.0
 
-- **Sign out** is now wired up: confirm dialog → spawns `inlinr signout` to revoke the device token server-side and clear it locally.
-- **CLI auto-upgrade**: a background `inlinr upgrade` runs every 4 hours (60 s after activation), so users get CLI fixes without reinstalling the extension.
-- Sign-in now refreshes the status bar total immediately on success, instead of waiting for the next 60 s poll.
-- README: added Requirements (git-remote gotcha) and Troubleshooting sections; removed a broken screenshot link.
-- Internal: unit tests for AI-tool detection (host-app precedence over extension ID).
+- **Sign out** works: after a confirmation, the device is revoked on inlinr
+  and its sign-in removed from this machine.
+- **The CLI keeps itself up to date**: the extension checks for a new CLI a
+  minute after VS Code starts, then every 4 hours.
+- After signing in, the status bar shows today's time at once instead of up
+  to a minute later.
+- The README gained Requirements and Troubleshooting sections.
 
 ## 0.1.1
 
-- Fix: status bar "Sign in" now actually triggers sign-in instead of opening the dashboard.
-- Remove `inlinr.apiUrl` setting — server URL is fixed to https://inlinr.com.
+- Fixed: "Sign in" in the status bar signs in instead of opening the
+  dashboard.
+- The `inlinr.apiUrl` setting is removed: the server is always
+  https://inlinr.com.
 
-## 0.1.0 — Initial release
+## 0.1.0 (first release)
 
-- Automatic heartbeat tracking on file edits, saves, selection changes, tab switches.
-- Device-flow authentication (no API keys to paste).
-- AI-tool attribution: Copilot, Cursor, Claude Code, Codeium, Windsurf, Aider.
-- Status bar shows today's total coding time, polled every 60 seconds.
+- Automatic tracking on edits, saves, selection changes and tab switches.
+- Sign in from the editor, with no API key to paste.
+- Which assistant wrote the code: Copilot, Cursor, Claude Code, Codeium,
+  Windsurf, Aider.
+- The status bar shows today's coding time, updated every minute.
 - Commands: Sign in, Sign out, Open dashboard, Doctor, Toggle status bar.
-- Auto-downloads and SHA-verifies the `inlinr` CLI on first activation.
+- The CLI is downloaded and checked on first start.

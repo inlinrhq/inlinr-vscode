@@ -43,7 +43,7 @@ src/
   edit-attribution.ts # human vs AI classification + per-file line counters
   git-fs.ts         # reads .git directly (worktree fallback), no vscode import
   folder-project.ts # a folder with no git remote: its name as the project
-  temporary.ts      # temp, scratchpad and worktree folders: one `scratch` project (same rule as inlinr-claude-code)
+  temporary.ts      # a folder with no remote in a temp, scratchpad or worktree folder: one `scratch` project (same rule as inlinr-claude-code)
   dependencies.ts   # CLI download + SHA256 verify
   commands.ts       # signIn / signOut / dashboard / doctor handlers
   report.ts         # sends the extension's own failures to Admin → Errors

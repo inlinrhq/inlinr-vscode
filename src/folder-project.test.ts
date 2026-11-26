@@ -1,4 +1,5 @@
 import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { folderProjectName } from "./folder-project";
@@ -16,8 +17,7 @@ describe("folderProjectName", () => {
   });
 
   it("refuses a folder that holds repositories", () => {
-    // Not in the temporary folder, which is refused on its own.
-    const parent = mkdtempSync(join(process.cwd(), ".test-folder-"));
+    const parent = mkdtempSync(join(tmpdir(), "folder-"));
     try {
       expect(folderProjectName(parent, "/home/me")).not.toBeNull();
       mkdirSync(join(parent, "api", ".git"), { recursive: true });
@@ -25,6 +25,10 @@ describe("folderProjectName", () => {
     } finally {
       rmSync(parent, { recursive: true, force: true });
     }
+  });
+
+  it("refuses a home folder in the temporary folder", () => {
+    expect(folderProjectName("/tmp", "/tmp", "/tmp")).toBeNull();
   });
 
   it("sends every temporary folder as one scratch project", () => {

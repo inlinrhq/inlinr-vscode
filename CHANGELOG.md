@@ -8,6 +8,19 @@
   temp folder, a scratchpad, `.claude/worktrees/` or a cache is tracked under
   one project, `scratch`, instead of a project of its own per folder.
 
+## 0.6.0
+
+### Added
+
+- **Pause tracking.** Pause tracking (30 minutes, 1 hour, 2 hours, until
+  resumed) and Resume tracking pause the whole machine through the CLI; the
+  status bar shows the pause and resumes on a click.
+
+### Fixed
+
+- **Paths on Windows.** A file's path from its folder is sent with `/` on
+  every system.
+
 ## 0.5.5
 
 ### Fixed

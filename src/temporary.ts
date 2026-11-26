@@ -7,14 +7,15 @@ import { tmpdir } from "node:os";
 export const SCRATCH_PROJECT = "scratch";
 
 /**
- * Is this repository's root a folder agents and quick tests work in: the
- * system's temporary folder, a scratchpad, Claude Code's worktrees, a cache?
+ * Is this folder one agents and quick tests work in: the system's temporary
+ * folder, a scratchpad, Claude Code's worktrees, a cache?
  *
- * Only asked of a repository with no remote, which would otherwise become a
- * project named after its folder (`wt-1188m`, `kw-2202`); it goes to
- * `SCRATCH_PROJECT` instead. A worktree with a
- * remote stays its repository's. The same rule as the Claude Code plugin's
- * `src/temporary.ts` (inlinr-claude-code). No vscode import.
+ * Here it is asked of a workspace folder with no git remote, which would
+ * otherwise become a project named after it (`wt-1188m`, `kw-2202`); it
+ * goes to `SCRATCH_PROJECT` instead. A folder with a remote stays its
+ * repository's. The same rule as the Claude Code plugin's
+ * `src/temporary.ts` (inlinr-claude-code), which asks it of a repository's
+ * root. No vscode import.
  */
 export function isTemporaryRoot(root: string, temp = tmpdir()): boolean {
   const norm = (p: string) =>

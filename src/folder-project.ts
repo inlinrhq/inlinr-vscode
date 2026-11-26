@@ -25,9 +25,11 @@ export function folderProjectName(
 ): string | null {
   const resolved = path.resolve(folderPath);
   if (path.dirname(resolved) === resolved) return null;
-  if (isTemporaryRoot(resolved, temp)) return SCRATCH_PROJECT;
+  // Too broad first, even in a temporary folder: some containers set the
+  // home folder to /tmp, and /tmp may hold clones.
   if (samePath(resolved, path.resolve(home))) return null;
   if (holdsRepositories(resolved)) return null;
+  if (isTemporaryRoot(resolved, temp)) return SCRATCH_PROJECT;
   const name = path.basename(resolved).trim();
   return name || null;
 }

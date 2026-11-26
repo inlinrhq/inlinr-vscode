@@ -35,7 +35,7 @@ terminal moves the machine to another one.
 
 ### Requirements
 
-Projects are keyed by their git `origin` remote. A folder with no git remote is tracked under its folder name instead (only the name is sent, never the path); turn `inlinr.trackFoldersWithoutGit` off to leave such folders out. The home folder, a drive's root and a folder holding several repositories are never tracked this way.
+Projects are keyed by their git `origin` remote. A folder with no git remote is tracked under its folder name instead (only the name is sent, never the path); turn `inlinr.trackFoldersWithoutGit` off to leave such folders out. The home folder, a drive's root, a folder holding several repositories and a temporary folder (the system's temp folder, a scratchpad, `.claude/worktrees/`, a cache: an agent's or a quick test's) are never tracked this way.
 
 ## Commands
 
